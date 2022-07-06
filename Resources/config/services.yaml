@@ -1,0 +1,70 @@
+services:
+  _defaults:
+    autowire:      false
+    autoconfigure: false
+    public:        true
+
+##### Debug
+  austral.tools.debug:
+    class:        Austral\ToolsBundle\Services\Debug
+    calls:
+      - setDebugStopWatch: ['@?debug.stopwatch']
+
+##### Twig Extension detected
+  twig.extension.tools:
+    class:        Austral\ToolsBundle\TwigExtension\ToolsTwig
+    tags:
+      - { name: twig.extension }
+
+
+
+##### Services
+  austral.tools.services.status-checker:
+    class:        Austral\ToolsBundle\Services\ServicesStatusChecker
+    arguments:    ['@service_container']
+
+
+####### gedmo.listener default configuration
+  gedmo.listener.tree:
+    class: Gedmo\Tree\TreeListener
+    tags:
+      - { name: doctrine.event_subscriber, connection: default }
+    calls:
+      - [ setAnnotationReader, [ "@annotation_reader" ] ]
+
+  gedmo.listener.translatable:
+    class: Gedmo\Translatable\TranslatableListener
+    tags:
+      - { name: doctrine.event_subscriber, connection: default }
+    calls:
+      - [ setAnnotationReader, [ "@annotation_reader" ] ]
+      - [ setDefaultLocale, [ "%kernel.default_locale%" ] ]
+      - [ setTranslationFallback, [ false ] ]
+
+  gedmo.listener.timestampable:
+    class: Gedmo\Timestampable\TimestampableListener
+    tags:
+      - { name: doctrine.event_subscriber, connection: default }
+    calls:
+      - [ setAnnotationReader, [ "@annotation_reader" ] ]
+
+  gedmo.listener.sluggable:
+    class: Gedmo\Sluggable\SluggableListener
+    tags:
+      - { name: doctrine.event_subscriber, connection: default }
+    calls:
+      - [ setAnnotationReader, [ "@annotation_reader" ] ]
+
+  gedmo.listener.sortable:
+    class: Gedmo\Sortable\SortableListener
+    tags:
+      - { name: doctrine.event_subscriber, connection: default }
+    calls:
+      - [ setAnnotationReader, [ "@annotation_reader" ] ]
+
+  gedmo.listener.loggable:
+    class: Gedmo\Loggable\LoggableListener
+    tags:
+      - { name: doctrine.event_subscriber, connection: default }
+    calls:
+      - [ setAnnotationReader, [ "@annotation_reader" ] ]

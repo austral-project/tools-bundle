@@ -1,0 +1,9 @@
+parameters:
+
+  austral.tools.services:
+    - name:     "Services Statut"
+      command:  "austral:tools:status-checker"
+    - name:     "Conflict Detect"
+      command:  "austral:admin:conflict-detect"
+    - name:     "Messenger"
+      command:  "messenger:consume"

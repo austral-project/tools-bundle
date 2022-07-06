@@ -1,0 +1,9 @@
+services:
+  _defaults:
+    public:       false
+
+  ##### Command to generate Roles with the defined modules
+  austral.tools.status-checker.command:
+    class:        Austral\ToolsBundle\Command\StatusChecker
+    tags:
+      - { name: console.command, command: "austral:tools:status-checker" }
