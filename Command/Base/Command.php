@@ -128,6 +128,11 @@ abstract class Command extends BaseCommand
     $this->timeStartScript = microtime(true);
     $this->init($input, $output)->start();
     try {
+      if($this->container->has("austral.entity.mapping.listener"))
+      {
+        $mappingListener = $this->container->get('austral.entity.mapping.listener');
+        $mappingListener->initEntityAnnotations();
+      }
       $this->executeCommand($input, $output);
     }
     catch(Exception $e) {
