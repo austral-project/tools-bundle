@@ -117,14 +117,6 @@ abstract class Command extends BaseCommand
    */
   protected function execute(InputInterface $input, OutputInterface $output): ?int
   {
-    try {
-      pcntl_signal(SIGTERM, [$this, 'stopCommand']);
-      pcntl_signal(SIGINT, [$this, 'stopCommand']);
-    }
-    catch(Exception $e){
-      $this->viewMessage($e->getMessage(), "error");
-      $this->executeStopCommand();
-    }
     $this->timeStartScript = microtime(true);
     $this->init($input, $output)->start();
     try {
@@ -141,6 +133,24 @@ abstract class Command extends BaseCommand
     }
     $this->stop();
     return 0;
+  }
+
+  /**
+   * @return array
+   */
+  public function getSubscribedSignals(): array
+  {
+    return [SIGINT, SIGTERM];
+  }
+
+  /**
+   * @param int $signal
+   *
+   * @return void
+   */
+  public function handleSignal(int $signal)
+  {
+    $this->stopCommand();
   }
 
   /**

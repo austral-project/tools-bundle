@@ -9,6 +9,8 @@
  */
 namespace Austral\ToolsBundle\Traits;
 
+use Symfony\Component\Console\Helper\ProgressBar;
+use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
@@ -24,6 +26,11 @@ trait IoTrait
   protected ?SymfonyStyle $io = null;
 
   /**
+   * @var OutputInterface|null
+   */
+  protected ?OutputInterface $output = null;
+
+  /**
    * @param SymfonyStyle $io
    *
    * @return $this
@@ -31,6 +38,17 @@ trait IoTrait
   public function setIo(SymfonyStyle $io)
   {
     $this->io = $io;
+    return $this;
+  }
+
+  /**
+   * @param OutputInterface $output
+   *
+   * @return $this
+   */
+  public function setOutput(OutputInterface $output)
+  {
+    $this->output = $output;
     return $this;
   }
 
@@ -73,6 +91,83 @@ trait IoTrait
         break;
       }
     }
+    return $this;
+  }
+
+  /**
+   * @param int $count
+   *
+   * @return $this
+   */
+  protected function newLine(int $count = 1)
+  {
+    $this->io->newLine($count);
+    return $this;
+  }
+
+
+  /**
+   * @var array
+   */
+  protected array $progressBars = array();
+
+  /**
+   * @param string $name
+   *
+   * @return ProgressBar|null
+   */
+  public function getProgressBar(string $name = "default"): ?ProgressBar
+  {
+    if(array_key_exists($name, $this->progressBars))
+    {
+      return $this->progressBars[$name];
+    }
+    return null;
+  }
+
+  /**
+   * @param string $name
+   * @param int $progressBarValue
+   *
+   * @return $this
+   */
+  protected function progressBarStart(string $name = "default", int $progressBarValue = 100)
+  {
+    if($this->output) {
+      $this->progressBars[$name] = new ProgressBar($this->output, $progressBarValue);
+    }
+    return $this;
+  }
+
+  /**
+   * @param string $name
+   * @param int $step
+   *
+   * @return $this
+   */
+  protected function progressAdvance(string $name = "default", int $step = 1)
+  {
+    /** @var ProgressBar $progressBar */
+    if($progressBar = $this->getProgressBar($name))
+    {
+      $progressBar->advance($step);
+    }
+    return $this;
+  }
+
+  /**
+   * @param string $name
+   *
+   * @return $this
+   */
+  protected function progressFinish(string $name = "default")
+  {
+    /** @var ProgressBar $progressBar */
+    if($progressBar = $this->getProgressBar($name))
+    {
+      $progressBar->finish();
+    }
+    $this->newLine(2);
     return $this;
   }
 
