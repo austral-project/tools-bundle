@@ -101,7 +101,9 @@ trait IoTrait
    */
   protected function newLine(int $count = 1)
   {
-    $this->io->newLine($count);
+    if($this->io) {
+      $this->io->newLine($count);
+    }
     return $this;
   }
 
@@ -128,13 +130,16 @@ trait IoTrait
   /**
    * @param string $name
    * @param int $progressBarValue
+   * @param string $format
    *
    * @return $this
    */
-  protected function progressBarStart(string $name = "default", int $progressBarValue = 100)
+  protected function progressStart(string $name = "default", int $progressBarValue = 100, string $format = " %current%/%max% -- %message%")
   {
     if($this->output) {
+      ProgressBar::setFormatDefinition('austral', $format);
       $this->progressBars[$name] = new ProgressBar($this->output, $progressBarValue);
+      $this->progressBars[$name]->setFormat('austral');
     }
     return $this;
   }
@@ -142,14 +147,18 @@ trait IoTrait
   /**
    * @param string $name
    * @param int $step
+   * @param string|null $message
    *
    * @return $this
    */
-  protected function progressAdvance(string $name = "default", int $step = 1)
+  protected function progressAdvance(string $name = "default", int $step = 1, ?string $message = null)
   {
     /** @var ProgressBar $progressBar */
     if($progressBar = $this->getProgressBar($name))
     {
+      if($message) {
+        $progressBar->setMessage($message);
+      }
       $progressBar->advance($step);
     }
     return $this;
