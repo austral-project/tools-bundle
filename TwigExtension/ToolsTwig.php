@@ -28,6 +28,21 @@ class ToolsTwig extends AbstractExtension
 {
 
   /**
+   * @var string
+   */
+  protected string $kernelProjectDir;
+
+  /**
+   * Initialize tinymce helper
+   *
+   * @param string $kernelProjectDir
+   */
+  public function __construct(string $kernelProjectDir)
+  {
+    $this->kernelProjectDir = $kernelProjectDir;
+  }
+
+  /**
    * @return TwigFilter[]
    */
   public function getFilters(): array
@@ -42,6 +57,7 @@ class ToolsTwig extends AbstractExtension
       new TwigFilter('twig_filter_exists', [$this, 'twigFilterExists'], ['needs_environment' => true]),
 
       new TwigFilter('file_exist', [$this, 'fileExist']),
+      new TwigFilter('asset_exist', [$this, 'assetExist']),
       new TwigFilter('file_size', [$this, 'fileSize']),
       new TwigFilter('file_mime_type', [$this, 'fileMimeType']),
       new TwigFilter('file_is_image', [$this, 'isImage']),
@@ -77,6 +93,7 @@ class ToolsTwig extends AbstractExtension
       "add_in_array"            => new TwigFunction("add_in_array", array($this, "addInArray")),
       "twig_filter_exists"      => new TwigFunction('twig_filter_exists', array($this, 'twigFilterExists'), ['needs_environment' => true]),
 
+      "assets_exist"              => new TwigFunction("asset_exist", array($this, "assetExist")),
       "file_exist"              => new TwigFunction("file_exist", array($this, "fileExist")),
       "file_size"               => new TwigFunction("file_size", array($this, "fileSize")),
       "file_mime_type"          => new TwigFunction("file_mime_type", array($this, "fileMimeType")),
@@ -195,6 +212,17 @@ class ToolsTwig extends AbstractExtension
   {
     $reflexionClass = new \ReflectionClass($instance);
     return $reflexionClass->isInstance($var);
+  }
+
+  /**
+   * @param string $assetPath
+   *
+   * @return bool
+   */
+  public function assetExist(string $assetPath): bool
+  {
+    $realAssetPath = AustralTools::join($this->kernelProjectDir, "public", $assetPath);
+    return $this->fileExist($realAssetPath);
   }
 
   /**

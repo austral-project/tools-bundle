@@ -13,6 +13,7 @@ services:
 ##### Twig Extension detected
   twig.extension.tools:
     class:        Austral\ToolsBundle\TwigExtension\ToolsTwig
+    arguments:    ['%kernel.project_dir%']
     tags:
       - { name: twig.extension }
 
