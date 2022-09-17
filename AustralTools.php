@@ -10,7 +10,6 @@
 
 namespace Austral\ToolsBundle;
 
-use Austral\EntityTranslateBundle\Entity\Interfaces\EntityTranslateMasterInterface;
 use Symfony\Component\String\Slugger\AsciiSlugger;
 use function Symfony\Component\String\u;
 
@@ -165,7 +164,7 @@ class AustralTools
       {
         $returnValue =  $array->$getter();
       }
-      elseif(self::usedImplements(get_class($array), EntityTranslateMasterInterface::class))
+      elseif(self::usedImplements(get_class($array), "Austral\EntityBundle\Entity\Interfaces\TranslateMasterInterface"))
       {
         $translate = $array->getTranslateCurrent();
         if(method_exists($translate, $key))
@@ -822,6 +821,38 @@ class AustralTools
       }
     }
     return $flatten;
+  }
+
+  /**
+   * @param array $items
+   * @param string $delimiter
+   *
+   * @return array
+   */
+  public static function arrayByFlatten(array $items, $delimiter='.'): array
+  {
+    $new = array();
+    foreach ($items as $key => $value) {
+      $key = "{$key}{$delimiter}element";
+      if (strpos($key, $delimiter) === false) {
+        $new[$key] = is_array($value) ? self::arrayByFlatten($value, $delimiter) : $value;
+        continue;
+      }
+
+      $segments = explode($delimiter, $key);
+      $last = &$new[$segments[0]];
+      if (!is_null($last) && !is_array($last)) {
+        throw new \LogicException(sprintf("The '%s' key has already been defined as being '%s'", $segments[0], gettype($last)));
+      }
+
+      foreach ($segments as $k => $segment) {
+        if ($k != 0) {
+          $last = &$last[$segment];
+        }
+      }
+      $last = is_array($value) ? self::arrayByFlatten($value, $delimiter) : $value;
+    }
+    return $new;
   }
 
 
