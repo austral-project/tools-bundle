@@ -10,7 +10,6 @@
 
 namespace Austral\ToolsBundle\Command\Base;
 
-use Austral\ToolsBundle\Command\Exception\CommandException;
 use Austral\ToolsBundle\Traits as Traits;
 
 use Exception;
@@ -42,6 +41,11 @@ abstract class Command extends BaseCommand
    * @var string
    */
   protected string $titleCommande = "";
+
+  /**
+   * @var bool
+   */
+  protected bool $initEntityMapping = true;
 
   /**
    * @var integer
@@ -120,7 +124,7 @@ abstract class Command extends BaseCommand
     $this->timeStartScript = microtime(true);
     $this->init($input, $output)->start();
     try {
-      if($this->container->has("austral.entity.mapping.listener"))
+      if($this->container->has("austral.entity.mapping.listener") && $this->initEntityMapping)
       {
         $mappingListener = $this->container->get('austral.entity.mapping.listener');
         $mappingListener->initEntityAnnotations();
