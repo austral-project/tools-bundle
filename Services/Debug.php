@@ -11,6 +11,7 @@
 namespace Austral\ToolsBundle\Services;
 
 use Symfony\Component\Stopwatch\Stopwatch;
+use Symfony\Component\Stopwatch\StopwatchEvent;
 
 /**
  * Austral Debug Service.
@@ -71,15 +72,15 @@ Class Debug
   /**
    * @param string $name
    *
-   * @return $this
+   * @return StopwatchEvent
    */
-  public function stopWatchStop(string $name): Debug
+  public function stopWatchStop(string $name): ?StopwatchEvent
   {
     if($this->stopWatch && $this->stopWatch->isStarted($name))
     {
-      $this->stopWatch->stop($name);
+      return $this->stopWatch->stop($name);
     }
-    return $this;
+    return null;
   }
 
 }

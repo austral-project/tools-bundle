@@ -132,6 +132,7 @@ abstract class Command extends BaseCommand
       $this->executeCommand($input, $output);
     }
     catch(Exception $e) {
+      dump($e);
       $this->viewMessage($e->getMessage(), "error");
       $this->executeStopCommand();
     }
