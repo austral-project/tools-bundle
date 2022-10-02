@@ -10,7 +10,6 @@
 
 namespace Austral\ToolsBundle\Command\Base;
 
-use Austral\ToolsBundle\Command\Exception\CommandException;
 use Austral\ToolsBundle\Traits as Traits;
 
 use Exception;

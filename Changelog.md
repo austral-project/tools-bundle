@@ -1,6 +1,11 @@
 Changelog
 =========
 
+### Version 3.0.1 (2021-10-01)
+* Added new function tools
+* Added new function twig extenstion
+
+
 ### Version 3.0.0 (2021-02-10)
 * Created new repository and new branch in to Github
 * Changed the project License to the MIT
