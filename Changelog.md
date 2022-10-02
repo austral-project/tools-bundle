@@ -3,7 +3,7 @@ Changelog
 
 ### Version 3.0.1 (2021-10-01)
 * Added new function tools
-* Added new function twig extenstion
+* Added new function twig extension
 
 
 ### Version 3.0.0 (2021-02-10)
