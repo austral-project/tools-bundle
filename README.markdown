@@ -16,7 +16,7 @@ composer require austral/tools-bundle
 ```
 
 ## Documentation
-See documentation on the [official website](https://austral.dev/bundles/tools-bundle)
+See documentation on the [official website](https://austral.dev/en/bundles/tools-bundle)
 
 ## Commit Messages
 
