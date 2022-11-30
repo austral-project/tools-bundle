@@ -14,6 +14,7 @@ use Austral\ToolsBundle\Traits as Traits;
 
 use Exception;
 use LogicException;
+use Symfony\Component\Console\Event\ConsoleErrorEvent;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Console\Style\SymfonyStyle;
@@ -130,14 +131,17 @@ abstract class Command extends BaseCommand
         $mappingListener->initEntityAnnotations();
       }
       $this->executeCommand($input, $output);
+      $this->stop();
+      return self::SUCCESS;
     }
     catch(Exception $e) {
-      dump($e);
+      $errorConsole = new ConsoleErrorEvent($input, $output, $e, $this);
+      $this->container->get('event_dispatcher')->dispatch($errorConsole, "console.error");
       $this->viewMessage($e->getMessage(), "error");
       $this->executeStopCommand();
+      $this->stop();
+      return self::FAILURE;
     }
-    $this->stop();
-    return 0;
   }
 
   /**
