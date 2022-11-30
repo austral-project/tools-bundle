@@ -41,7 +41,7 @@ abstract Class BaseConfiguration implements ConfigurationInterface
   /**
    * Initialize the service
    *
-   * @param array Config
+   * @param array $config Config
    */
   public function __construct(array $config)
   {
