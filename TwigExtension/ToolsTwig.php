@@ -52,6 +52,7 @@ class ToolsTwig extends AbstractExtension
       new TwigFilter('tools_dump_force', [$this, 'dumpForce']),
       new TwigFilter('tools_dump_kill', [$this, 'dumpKill']),
       new TwigFilter('value_by_key', [$this, 'valueByKey']),
+      new TwigFilter('array_to_string', [$this, 'arrayToString']),
       new TwigFilter('unset_in_array', [$this, 'unsetInArray']),
       new TwigFilter('ksort', [$this, 'ksort']),
       new TwigFilter('twig_filter_exists', [$this, 'twigFilterExists'], ['needs_environment' => true]),
@@ -87,6 +88,7 @@ class ToolsTwig extends AbstractExtension
       "tools_dump_kill"         => new TwigFunction("tools_dump_kill", array($this, "dumpKill")),
       "is_dev"                  => new TwigFunction("tools_is_dev", array($this, "isDev")),
       "value_by_key"            => new TwigFunction("value_by_key", array($this, "valueByKey")),
+      "array_to_string"         => new TwigFunction("value_by_key", array($this, "arrayToString")),
       "unset_in_array"          => new TwigFunction("unset_in_array", array($this, "unsetInArray")),
       "ksort"                   => new TwigFunction("ksort", array($this, "ksort")),
       "uuid"                    => new TwigFunction("uuid", array($this, "uuid")),
@@ -145,6 +147,17 @@ class ToolsTwig extends AbstractExtension
   public function valueByKey($array, string $key, $default = null)
   {
     return AustralTools::getValueByKey($array, $key, $default);
+  }
+
+  /**
+   * @param array $array
+   * @param bool $html
+   *
+   * @return string
+   */
+  public function arrayToString(array $array = array(), bool $html = false): string
+  {
+    return AustralTools::arrayToString($array, $html);
   }
 
   /**

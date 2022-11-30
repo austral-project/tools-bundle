@@ -855,5 +855,49 @@ class AustralTools
     return $new;
   }
 
+  /**
+   * @param array $array
+   * @param bool $html
+   * @param int $lvl
+   *
+   * @return string
+   */
+  public static function arrayToString(array $array = array(), bool $html = false, int $lvl = 0): string
+  {
+    $text = "";
+    $hasTitle = false;
+    foreach($array as $key => $values)
+    {
+      $hasTitle = is_string($key);
+      $text .= $html ? "<li class='austral-value-container'>" : "";
+      if($hasTitle) {
+        $text .= $html ? "<span class='austral-title-key'>{$key}</span>" : $key."\n";
+      }
+      $text .= $html ? "<div class='austral-value'>" : "";
+      if(is_array($values))
+      {
+        if(count($values) > 0)
+        {
+          $text .= self::arrayToString($values, $html, $lvl+1);
+        }
+        else
+        {
+          $text .= " - ";
+        }
+      }
+      else
+      {
+        $text .= $values ?? " - ";
+      }
+      $text .= $html ? "</div>" : "";
+      $text .= $html ? "</li>" : "\n";
+    }
+
+    $content = $html ? "<ul class='austral-array-to-string lvl-{$lvl} ".($hasTitle ? "has-title" : "no-title")."'>" : "";
+    $content .= $text;
+    $content .= $html ? "</ul>" : "";
+    return $content;
+  }
+
 
 }
