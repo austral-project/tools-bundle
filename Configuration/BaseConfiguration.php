@@ -43,7 +43,7 @@ abstract Class BaseConfiguration implements ConfigurationInterface
    *
    * @param array $config Config
    */
-  public function __construct(array $config)
+  public function __construct(array $config = array())
   {
     $this->config = $config;
     $this->flatten = $this->init(".", $config, "{$this->prefix}.");
