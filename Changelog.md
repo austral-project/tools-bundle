@@ -1,6 +1,11 @@
 Changelog
 =========
 
+### Version 3.1.1 (2022-12-16)
+* Add return execute command
+* Add ConsoleErrorEvent if exception
+* Add array to string function in tools
+
 ### Version 3.1.0 (2022-09-17)
 * Updated bundles version to 3.1
 
