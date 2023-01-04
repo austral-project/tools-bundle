@@ -88,7 +88,7 @@ class ToolsTwig extends AbstractExtension
       "tools_dump_kill"         => new TwigFunction("tools_dump_kill", array($this, "dumpKill")),
       "is_dev"                  => new TwigFunction("tools_is_dev", array($this, "isDev")),
       "value_by_key"            => new TwigFunction("value_by_key", array($this, "valueByKey")),
-      "array_to_string"         => new TwigFunction("value_by_key", array($this, "arrayToString")),
+      "array_to_string"         => new TwigFunction("array_to_string", array($this, "arrayToString")),
       "unset_in_array"          => new TwigFunction("unset_in_array", array($this, "unsetInArray")),
       "ksort"                   => new TwigFunction("ksort", array($this, "ksort")),
       "uuid"                    => new TwigFunction("uuid", array($this, "uuid")),
