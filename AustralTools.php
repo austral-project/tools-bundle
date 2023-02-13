@@ -795,28 +795,31 @@ class AustralTools
   public static function flattenArray(string $delimiter = '.', $items = null, ?string $prepend = ''): array
   {
     $flatten = [];
-    foreach ($items as $key => $value) {
-      $key = str_replace("\x00*\x00", "", $key);
-      if(is_numeric($key))
-      {
-        $flatten[trim($prepend, ".")][$key] = $value;
-      }
-      elseif(is_object($value))
-      {
-        $flatten = array_merge(
-          $flatten,
-          self::flattenArray($delimiter, (array) $value, $prepend.$key.$delimiter)
-        );
-      }
-      else
-      {
-        if (is_array($value) && !empty($value)) {
+    if(is_array($items))
+    {
+      foreach ($items as $key => $value) {
+        $key = str_replace("\x00*\x00", "", $key);
+        if(is_numeric($key))
+        {
+          $flatten[trim($prepend, ".")][$key] = $value;
+        }
+        elseif(is_object($value))
+        {
           $flatten = array_merge(
             $flatten,
-            self::flattenArray($delimiter, $value, $prepend.$key.$delimiter)
+            self::flattenArray($delimiter, (array) $value, $prepend.$key.$delimiter)
           );
-        } else {
-          $flatten[$prepend.$key] = $value;
+        }
+        else
+        {
+          if (is_array($value) && !empty($value)) {
+            $flatten = array_merge(
+              $flatten,
+              self::flattenArray($delimiter, $value, $prepend.$key.$delimiter)
+            );
+          } else {
+            $flatten[$prepend.$key] = $value;
+          }
         }
       }
     }
