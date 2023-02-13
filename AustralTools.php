@@ -582,7 +582,7 @@ class AustralTools
    *
    * @return array|string
    */
-  public static function imageDimension(string $filePath, bool $returnArray = false)
+  public static function imageDimension(string $filePath, bool $returnArray = false, string $implode = " x ")
   {
     $value = array();
     if(file_exists($filePath) && self::isImage($filePath))
@@ -593,7 +593,7 @@ class AustralTools
         "height"  =>  $height
       );
     }
-    return $returnArray ? $value : implode("x", $value);
+    return $returnArray ? $value : implode($implode, $value);
   }
 
   /**
