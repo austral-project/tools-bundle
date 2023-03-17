@@ -9,13 +9,11 @@
  */
 
 declare(strict_types=1);
-
 namespace Austral\ToolsBundle\Doctrine\ORM\Query\AST\Functions\PostgreSQL;
 
 /**
  * Austral Convert Json to text PostgreSQL.
  * @author Matthieu Beurel <matthieu@austral.dev>
- * @abstract
  */
 class ConvertJsonToText extends BaseFunction
 {

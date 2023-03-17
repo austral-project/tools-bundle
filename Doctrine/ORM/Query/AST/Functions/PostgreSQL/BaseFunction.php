@@ -9,7 +9,6 @@
  */
 
 declare(strict_types=1);
-
 namespace Austral\ToolsBundle\Doctrine\ORM\Query\AST\Functions\PostgreSQL;
 
 use Doctrine\ORM\Query\AST\Functions\FunctionNode;
