@@ -49,9 +49,9 @@ abstract class Command extends BaseCommand
   protected bool $initEntityMapping = true;
 
   /**
-   * @var integer
+   * @var float
    */
-  protected int $timeStartScript;
+  protected float $timeStartScript;
 
   /**
    * @var KernelInterface
