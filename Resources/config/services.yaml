@@ -17,8 +17,6 @@ services:
     tags:
       - { name: twig.extension }
 
-
-
 ##### Services
   austral.tools.services.status-checker:
     class:        Austral\ToolsBundle\Services\ServicesStatusChecker

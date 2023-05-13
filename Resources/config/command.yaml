@@ -7,3 +7,8 @@ services:
     class:        Austral\ToolsBundle\Command\StatusChecker
     tags:
       - { name: console.command, command: "austral:tools:status-checker" }
+
+  austral.make.command:
+    class:        Austral\ToolsBundle\Command\MakeEntity
+    tags:
+      - { name: console.command, command: "austral:make:entity" }
