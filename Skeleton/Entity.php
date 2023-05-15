@@ -23,7 +23,7 @@ use Ramsey\Uuid\Uuid;
  * @ORM\Entity(repositoryClass="##REPOSITORY_NAMESPACE##\##NAME##Repository")
  * @final
  */
-class ##NAME## extends Entity implements EntityInterface ##ENTITY_INTERFACE##
+class ##NAME## extends Entity implements EntityInterface##ENTITY_INTERFACE##
 {
 ##ENTITY_TRAITS##
   /**

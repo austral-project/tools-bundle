@@ -14,8 +14,10 @@ use Austral\ToolsBundle\Command\Base\Command;
 
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
+use Symfony\Component\Filesystem\Filesystem;
 use function Symfony\Component\String\u;
 
 /**
@@ -43,6 +45,8 @@ class MakeEntity extends Command
   {
     $this
       ->setDefinition([
+        new InputOption('--all-properties', '-a', InputOption::VALUE_NONE, 'Enabled all properties'),
+        new InputOption('--dirname', '-d', InputOption::VALUE_OPTIONAL, 'Defined dir'),
       ])
       ->addArgument("name", InputArgument::OPTIONAL, "Entity name")
       ->setDescription($this->titleCommande)
@@ -138,15 +142,17 @@ EOF
     $this->input = $input;
     $this->output = $output;
 
+    $dirname = $this->input->getOption("dirname");
+
     $this->projectPath = $this->container->getParameter("kernel.project_dir");
     $this->paths = array(
-      "Entity"          =>  "{$this->projectPath}/src/Entity",
-      "EntityManager"   =>  "{$this->projectPath}/src/EntityManager",
-      "Repository"      =>  "{$this->projectPath}/src/Repository"
+      "Entity"          =>  "{$this->projectPath}/src/Entity".($dirname ? "/{$dirname}" : ""),
+      "EntityManager"   =>  "{$this->projectPath}/src/EntityManager".($dirname ? "/{$dirname}" : ""),
+      "Repository"      =>  "{$this->projectPath}/src/Repository".($dirname ? "/{$dirname}" : "")
     );
-    $this->templateParameters["##ENTITY_NAMESPACE##"] = "App\\Entity";
-    $this->templateParameters["##ENTITY_MANAGER_NAMESPACE##"] = "App\\EntityManager";
-    $this->templateParameters["##REPOSITORY_NAMESPACE##"] = "App\\Repository";
+    $this->templateParameters["##ENTITY_NAMESPACE##"] = "App\\Entity".($dirname ? "\\{$dirname}" : "");
+    $this->templateParameters["##ENTITY_MANAGER_NAMESPACE##"] = "App\\EntityManager".($dirname ? "\\{$dirname}" : "");
+    $this->templateParameters["##REPOSITORY_NAMESPACE##"] = "App\\Repository".($dirname ? "\\{$dirname}" : "");
     $this->bundlesList = $this->container->getParameter('kernel.bundles');
 
     foreach($this->bundlesList as $bundleName => $bundle)
@@ -190,32 +196,61 @@ EOF
       $name = $this->askName();
     }
 
-    $helper = $this->getHelper('question');
-    $question = new ConfirmationQuestion('Entity has created and updated date ? (y|o)', false, "/^(y|o|1)/i");
-    if ($helper->ask($this->input, $this->output, $question)) {
-      $this->propertiesUsed["timestampable"] = true;
+    if($this->input->getOption("all-properties"))
+    {
+      foreach ($this->propertiesUsed as $key => $value)
+      {
+        if($key === "domainFilter")
+        {
+          $this->propertiesUsed[$key] = array(
+            "forAllDomainEnabled" =>  true,
+            "autoDomainId"        =>  true
+          );
+        }
+        else
+        {
+          $this->propertiesUsed[$key] = true;
+        }
+      }
+    }
+    else
+    {
+      $helper = $this->getHelper('question');
+      $question = new ConfirmationQuestion('Entity has created and updated date ? (y|o)', false, "/^(y|o|1)/i");
+      if ($helper->ask($this->input, $this->output, $question)) {
+        $this->propertiesUsed["timestampable"] = true;
+      }
+
+      if($this->bundleIsEnabled("AustralEntityTranslateBundle"))
+      {
+        $this->askUsedAustralEntityTranslateBundle();
+      }
+      if($this->bundleIsEnabled("AustralContentBlockBundle"))
+      {
+        $this->askUsedAustralContentBlockBundle();
+      }
+      if($this->bundleIsEnabled("AustralHttpBundle"))
+      {
+        $this->askUsedAustralHttpBundle();
+      }
+      if($this->bundleIsEnabled("AustralEntityFileBundle"))
+      {
+        $this->askUsedAustralEntityFileBundle();
+      }
+
+      if($this->bundleIsEnabled("AustralSeoBundle"))
+      {
+        $this->askUsedAustralSeoBundle();
+      }
     }
 
-    if($this->bundleIsEnabled("AustralEntityTranslateBundle"))
+    $filesystem = new Filesystem();
+    foreach ($this->paths as $path)
     {
-      $this->askUsedAustralEntityTranslateBundle();
-    }
-    if($this->bundleIsEnabled("AustralContentBlockBundle"))
-    {
-      $this->askUsedAustralContentBlockBundle();
-    }
-    if($this->bundleIsEnabled("AustralHttpBundle"))
-    {
-      $this->askUsedAustralHttpBundle();
-    }
-    if($this->bundleIsEnabled("AustralEntityFileBundle"))
-    {
-      $this->askUsedAustralEntityFileBundle();
-    }
-
-    if($this->bundleIsEnabled("AustralSeoBundle"))
-    {
-      $this->askUsedAustralSeoBundle();
+      if(!$filesystem->exists($path))
+      {
+        $filesystem->mkdir($path);
+      }
     }
 
     $this->generateFile($name);
@@ -295,10 +330,20 @@ EOF
     }
     elseif($isTranslate)
     {
+      $useClass[] = "use Austral\EntityBundle\Entity\Interfaces\TranslateMasterInterface;";
       $useClass[] = "use Austral\EntityBundle\Entity\Interfaces\TranslateChildInterface;";
       $useClass[] = "use Austral\EntityTranslateBundle\Entity\Traits\EntityTranslateChildTrait;";
       $interfacesClass[] = "TranslateChildInterface";
       $traitsClass[] = "use EntityTranslateChildTrait;";
+
+      $fields[] = '/**
+   * @var '.$name.'|TranslateMasterInterface
+   *
+   * @ORM\ManyToOne(targetEntity="'.$templateParameters["##ENTITY_NAMESPACE##"].'\\'.$name.'", inversedBy="translates", cascade={"persist", "remove"})
+   * @ORM\JoinColumn(name="master_id", referencedColumnName="id")
+   */
+  protected TranslateMasterInterface $master;';
+
     }
 
     if($this->propertiesUsed["blockComponent"])
