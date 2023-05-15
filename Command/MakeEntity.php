@@ -12,6 +12,7 @@ namespace Austral\ToolsBundle\Command;
 
 use Austral\ToolsBundle\Command\Base\Command;
 
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
@@ -43,6 +44,7 @@ class MakeEntity extends Command
     $this
       ->setDefinition([
       ])
+      ->addArgument("name", InputArgument::OPTIONAL, "Entity name")
       ->setDescription($this->titleCommande)
       ->setHelp(<<<'EOF'
 The <info>%command.name%</info> generate Entity / EntityManager / Repository file
@@ -183,7 +185,10 @@ EOF
    */
   protected function create()
   {
-    $name = $this->askName();
+    if(!$name = $this->input->getArgument("name"))
+    {
+      $name = $this->askName();
+    }
 
     $helper = $this->getHelper('question');
     $question = new ConfirmationQuestion('Entity has created and updated date ? (y|o)', false, "/^(y|o|1)/i");
@@ -367,6 +372,11 @@ EOF
         $interfacesClass[] = "TreePageInterface";
         $traitsClass[] = "use TreePageParentTrait;";
       }
+    }
+
+    if($this->propertiesUsed['file'])
+    {
+      $useClass[] = "use Austral\EntityFileBundle\Annotation as AustralFile;";
     }
 
     if($useClass) {
