@@ -47,6 +47,8 @@ class MakeEntity extends Command
       ->setDefinition([
         new InputOption('--all-properties', '-a', InputOption::VALUE_NONE, 'Enabled all properties'),
         new InputOption('--dirname', '-d', InputOption::VALUE_OPTIONAL, 'Defined dir'),
+        new InputOption('--path-file', '-p', InputOption::VALUE_OPTIONAL, 'Path file'),
+        new InputOption('--namespace', '', InputOption::VALUE_OPTIONAL, 'Namespace'),
       ])
       ->addArgument("name", InputArgument::OPTIONAL, "Entity name")
       ->setDescription($this->titleCommande)
@@ -58,11 +60,6 @@ EOF
       )
     ;
   }
-
-  /**
-   * @var string
-   */
-  protected string $projectPath;
 
   /**
    * @var array
@@ -143,16 +140,24 @@ EOF
     $this->output = $output;
 
     $dirname = $this->input->getOption("dirname");
+    if(!$pathFile = $this->input->getOption("path-file"))
+    {
+      $pathFile = "{$this->container->getParameter("kernel.project_dir")}/src";
+    }
+    if(!$namespace = $this->input->getOption("namespace"))
+    {
+      $namespace = "App";
+    }
 
-    $this->projectPath = $this->container->getParameter("kernel.project_dir");
+
     $this->paths = array(
-      "Entity"          =>  "{$this->projectPath}/src/Entity".($dirname ? "/{$dirname}" : ""),
-      "EntityManager"   =>  "{$this->projectPath}/src/EntityManager".($dirname ? "/{$dirname}" : ""),
-      "Repository"      =>  "{$this->projectPath}/src/Repository".($dirname ? "/{$dirname}" : "")
+      "Entity"          =>  "{$pathFile}/Entity".($dirname ? "/{$dirname}" : ""),
+      "EntityManager"   =>  "{$pathFile}/EntityManager".($dirname ? "/{$dirname}" : ""),
+      "Repository"      =>  "{$pathFile}/Repository".($dirname ? "/{$dirname}" : "")
     );
-    $this->templateParameters["##ENTITY_NAMESPACE##"] = "App\\Entity".($dirname ? "\\{$dirname}" : "");
-    $this->templateParameters["##ENTITY_MANAGER_NAMESPACE##"] = "App\\EntityManager".($dirname ? "\\{$dirname}" : "");
-    $this->templateParameters["##REPOSITORY_NAMESPACE##"] = "App\\Repository".($dirname ? "\\{$dirname}" : "");
+    $this->templateParameters["##ENTITY_NAMESPACE##"] = "{$namespace}\\Entity".($dirname ? "\\{$dirname}" : "");
+    $this->templateParameters["##ENTITY_MANAGER_NAMESPACE##"] = "{$namespace}\\EntityManager".($dirname ? "\\{$dirname}" : "");
+    $this->templateParameters["##REPOSITORY_NAMESPACE##"] = "{$namespace}\\Repository".($dirname ? "\\{$dirname}" : "");
     $this->bundlesList = $this->container->getParameter('kernel.bundles');
 
     foreach($this->bundlesList as $bundleName => $bundle)
@@ -383,7 +388,7 @@ EOF
 
       if($this->propertiesUsed["cropper"])
       {
-        if($this->propertiesUsed["translate"] && $isTranslate === false)
+        if($this->propertiesUsed["translate"])
         {
           $useClass[] = "use Austral\EntityTranslateBundle\Entity\Traits\EntityTranslateMasterFileCropperTrait;";
           $traitsClass[] = "use EntityTranslateMasterFileCropperTrait;";
@@ -416,6 +421,14 @@ EOF
         $useClass[] = "use Austral\SeoBundle\Entity\Traits\TreePageParentTrait;";
         $interfacesClass[] = "TreePageInterface";
         $traitsClass[] = "use TreePageParentTrait;";
+      }
+    }
+    elseif($isTranslate)
+    {
+      if($this->propertiesUsed["cropper"])
+      {
+        $useClass[] = "use Austral\EntityFileBundle\Entity\Traits\EntityFileCropperTrait;";
+        $traitsClass[] = "use EntityFileCropperTrait;";
       }
     }
 
