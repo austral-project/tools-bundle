@@ -1,14 +1,9 @@
 services:
   _defaults:
-    autowire:      false
-    autoconfigure: false
+    autowire:      true
+    autoconfigure: true
     public:        true
 
-##### Debug
-  austral.tools.debug:
-    class:        Austral\ToolsBundle\Services\Debug
-    calls:
-      - setDebugStopWatch: ['@?debug.stopwatch']
 
 ##### Twig Extension detected
   twig.extension.tools:
@@ -16,6 +11,12 @@ services:
     arguments:    ['%kernel.project_dir%']
     tags:
       - { name: twig.extension }
+
+##### Debug
+  austral.tools.debug:
+    class:        Austral\ToolsBundle\Services\Debug
+    calls:
+      - [ setDebugStopWatch, ['@?debug.stopwatch'] ]
 
 ##### Services
   austral.tools.services.status-checker:
