@@ -6,6 +6,7 @@ services:
 
 
 ##### Twig Extension detected
+  Austral\ToolsBundle\TwigExtension\ToolsTwig:  "@twig.extension.tools"
   twig.extension.tools:
     class:        Austral\ToolsBundle\TwigExtension\ToolsTwig
     arguments:    ['%kernel.project_dir%']
@@ -13,12 +14,14 @@ services:
       - { name: twig.extension }
 
 ##### Debug
+  Austral\ToolsBundle\Services\Debug: "@austral.tools.debug"
   austral.tools.debug:
     class:        Austral\ToolsBundle\Services\Debug
     calls:
       - [ setDebugStopWatch, ['@?debug.stopwatch'] ]
 
 ##### Services
+  Austral\ToolsBundle\Services\ServicesStatusChecker: "@austral.tools.services.status-checker"
   austral.tools.services.status-checker:
     class:        Austral\ToolsBundle\Services\ServicesStatusChecker
     arguments:    ['@service_container']
