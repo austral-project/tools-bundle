@@ -51,11 +51,13 @@ class ToolsTwig extends AbstractExtension
       new TwigFilter('tools_dump', [$this, 'dump']),
       new TwigFilter('tools_dump_force', [$this, 'dumpForce']),
       new TwigFilter('tools_dump_kill', [$this, 'dumpKill']),
+
       new TwigFilter('value_by_key', [$this, 'valueByKey']),
       new TwigFilter('array_to_string', [$this, 'arrayToString']),
       new TwigFilter('unset_in_array', [$this, 'unsetInArray']),
       new TwigFilter('ksort', [$this, 'ksort']),
       new TwigFilter('twig_filter_exists', [$this, 'twigFilterExists'], ['needs_environment' => true]),
+      new TwigFilter('remove_multi_br', [$this, 'removeMultiBr']),
 
       new TwigFilter('file_exist', [$this, 'fileExist']),
       new TwigFilter('asset_exist', [$this, 'assetExist']),
@@ -94,8 +96,9 @@ class ToolsTwig extends AbstractExtension
       "uuid"                    => new TwigFunction("uuid", array($this, "uuid")),
       "add_in_array"            => new TwigFunction("add_in_array", array($this, "addInArray")),
       "twig_filter_exists"      => new TwigFunction('twig_filter_exists', array($this, 'twigFilterExists'), ['needs_environment' => true]),
+      "remove_multi_br"         => new TwigFunction("remove_multi_br", array($this, "removeMultiBr")),
 
-      "assets_exist"              => new TwigFunction("asset_exist", array($this, "assetExist")),
+      "assets_exist"            => new TwigFunction("asset_exist", array($this, "assetExist")),
       "file_exist"              => new TwigFunction("file_exist", array($this, "fileExist")),
       "file_size"               => new TwigFunction("file_size", array($this, "fileSize")),
       "file_mime_type"          => new TwigFunction("file_mime_type", array($this, "fileMimeType")),
@@ -292,6 +295,20 @@ class ToolsTwig extends AbstractExtension
   public function imageSize(string $filePath, bool $returnArray = true)
   {
     return AustralTools::imageDimension($filePath, $returnArray);
+  }
+
+  /**
+   * removeBr
+   *
+   * @param string $value
+   * @param string $tagName
+   * @return string
+   */
+  public function removeMultiBr(string $value, string $tagName = "p"): string
+  {
+    $value = preg_replace( "/\n/", "", $value);
+    $value = preg_replace( "/\r/", "", $value);
+    return preg_replace( "/(<br( \/|)>){2,}/", "</{$tagName}><{$tagName}>", $value);
   }
 
 }
