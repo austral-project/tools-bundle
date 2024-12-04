@@ -340,11 +340,11 @@ EOF
       $useClass[] = "use Austral\EntityTranslateBundle\Entity\Traits\EntityTranslateChildTrait;";
       $interfacesClass[] = "TranslateChildInterface";
       $traitsClass[] = "use EntityTranslateChildTrait;";
-
+      $nameMaster = str_replace("Translate", "", $name);
       $fields[] = '/**
-   * @var '.$name.'|TranslateMasterInterface
+   * @var '.$nameMaster.'|TranslateMasterInterface
    *
-   * @ORM\ManyToOne(targetEntity="'.$templateParameters["##ENTITY_NAMESPACE##"].'\\'.$name.'", inversedBy="translates", cascade={"persist", "remove"})
+   * @ORM\ManyToOne(targetEntity="'.$templateParameters["##ENTITY_NAMESPACE##"].'\\'.$nameMaster.'", inversedBy="translates", cascade={"persist", "remove"})
    * @ORM\JoinColumn(name="master_id", referencedColumnName="id")
    */
   protected TranslateMasterInterface $master;';
