@@ -10,6 +10,7 @@
 
 namespace Austral\ToolsBundle;
 
+use Random\RandomException;
 use Symfony\Component\String\Slugger\AsciiSlugger;
 use function Symfony\Component\String\u;
 
@@ -271,28 +272,32 @@ class AustralTools
   /**
    * Generate random string with length and typologie
    *
-   * @param integer    $length         8
-   * @param string     $type           all OR letters OR numbers
+   * @param integer $length 8
+   * @param string $type    all OR letters OR numbers
    *
    * @return string
+   * @throws RandomException
    */
   public static function random(int $length = 8, string $type = self::RANDOM_TYPE_ALL): string
   {
     $val = $values = "";
-    $nbValues = 0;
     if($type === self::RANDOM_TYPE_ALL || $type === self::RANDOM_TYPE_LETTERS)
     {
       $values .= 'abcdefghijklmnopqrstuvwxyz';
-      $nbValues += 25;
     }
     if($type === self::RANDOM_TYPE_ALL || $type === self::RANDOM_TYPE_NUMBERS)
     {
       $values .= "0123456789";
-      $nbValues += 9;
     }
+
+    if ($values === '') {
+      throw new \InvalidArgumentException("No character set has been defined for this type");
+    }
+
+    $maxIndex = strlen($values) - 1;
     for($i = 0; $i < $length; $i++)
     {
-      $val .= $values[rand( 0, $nbValues )];
+      $val .= $values[random_int( 0, $maxIndex )];
     }
     return $val;
   }
