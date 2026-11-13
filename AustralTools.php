@@ -758,10 +758,10 @@ class AustralTools
   /**
    * @param string|null $initialVal
    * @param array $valuesToReplace
-   *
-   * @return array|string|string[]
+   * @param bool $removeEmpty
+   * @return string|array|null
    */
-  public static function replaceKeyByValue(string $initialVal = null, array $valuesToReplace = array())
+  public static function replaceKeyByValue(string $initialVal = null, array $valuesToReplace = array(), bool $removeEmpty = true): string|array|null
   {
     if($initialVal)
     {
@@ -776,9 +776,13 @@ class AustralTools
           {
             $replaceValues[$value] = $variableReplace;
           }
-          else
+          elseif($removeEmpty)
           {
             unset($values[$key]);
+          }
+          else
+          {
+            $replaceValues[$value] = "";
           }
         }
         if(count($replaceValues))
