@@ -1,12 +1,8 @@
-####> Project ###
-/.settings/
-/.project
-/.idea
-*~
-.phpunit.result.cache
-.phpunit.cache/
-####< Project ###
-
-###> Mac ###
+/vendor/
+/composer.lock
+/.phpunit.cache/
+/.php-cs-fixer.cache
+/var/
+.idea/
+.vscode/
 .DS_Store
-###< Mac ###
