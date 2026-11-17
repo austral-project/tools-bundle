@@ -10,18 +10,20 @@
 
 namespace Austral\ToolsBundle\Command\Base;
 
+use Austral\Tools\Event\ConsoleEvent;
 use Austral\ToolsBundle\Traits as Traits;
 
 use Exception;
 use LogicException;
+use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Event\ConsoleErrorEvent;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Command\Command as BaseCommand;
-use Symfony\Component\HttpKernel\KernelInterface;
 
 /**
  * Austral Abstract Command.
@@ -39,6 +41,11 @@ abstract class Command extends BaseCommand
   protected ?ContainerInterface $container = null;
 
   /**
+   * @var EventDispatcherInterface|null
+   */
+  protected ?EventDispatcherInterface $dispatcher = null;
+
+  /**
    * @var string
    */
   protected string $titleCommande = "";
@@ -51,17 +58,47 @@ abstract class Command extends BaseCommand
   /**
    * @var float
    */
-  protected float $timeStartScript;
-
-  /**
-   * @var KernelInterface
-   */
-  protected KernelInterface $kernel;
+  protected float $timeStartScript = 0.0;
 
   /**
    * @var Filesystem
    */
   protected Filesystem $filesystem;
+
+  /**
+   * @var Application|null
+   */
+  protected ?Application $application = null;
+
+  /**
+   * Command constructor
+   *
+   * @param string|null $name
+   * @param (callable(): mixed)|null $code
+   */
+  public function __construct(?string $name = null, ?callable $code = null)
+  {
+    parent::__construct($name, $code);
+    $this->filesystem = new Filesystem();
+  }
+
+  /**
+   * @param ContainerInterface $container
+   *
+   * @return void
+   */
+  public function setContainer(ContainerInterface $container): void
+  {
+    $this->container = $container;
+    $dispatcher =  $this->container->get('event_dispatcher');
+    if (!$dispatcher instanceof EventDispatcherInterface) {
+      throw new \LogicException(sprintf(
+        "Service 'event_dispatcher' must implement %s",
+        EventDispatcherInterface::class
+      ));
+    }
+    $this->dispatcher = $dispatcher;
+  }
 
   /**
    * @param InputInterface $input
@@ -71,10 +108,11 @@ abstract class Command extends BaseCommand
    */
   protected function init(InputInterface $input, OutputInterface $output): Command
   {
-    $this->kernel = $this->getApplication()->getKernel();
-    $this->container = $this->getContainer();
+    $this->application = $this->getApplication();
+    if (null === $this->application) {
+      throw new LogicException('The container cannot be retrieved as the application instance is not yet set.');
+    }
     $this->setIo(new SymfonyStyle($input, $output));
-    $this->filesystem = new Filesystem();
     return $this;
   }
 
@@ -83,7 +121,9 @@ abstract class Command extends BaseCommand
    */
   protected function start(): Command
   {
-    $this->io->title($this->titleCommande);
+    if($this->titleCommande) {
+      $this->viewMessage($this->titleCommande, self::MESSAGE_TYPE_TITLE);
+    }
     return $this;
   }
 
@@ -92,20 +132,20 @@ abstract class Command extends BaseCommand
    */
   protected function stop(): Command
   {
-    $timeend = microtime(true);
-    $date = date('d/m/Y H:i:s', $timeend);
-    $messageEnd = sprintf("Script end : %s -> %s", $date, $this->humanizeTimes($this->timeStartScript, $timeend));
+    $time = (int) microtime(true);
+    $date = date('d/m/Y H:i:s', $time);
+    $messageEnd = sprintf("Script end : %s -> %s", $date, $this->humanizeTimes($this->timeStartScript, $time));
     $this->viewMessage($messageEnd, "success");
     return $this;
   }
 
   /**
-   * @param $timesStart
-   * @param $timesEnd
+   * @param float $timesStart
+   * @param float $timesEnd
    *
    * @return string
    */
-  protected function humanizeTimes($timesStart, $timesEnd): string
+  protected function humanizeTimes(float $timesStart, float $timesEnd): string
   {
     $time = $timesEnd - $timesStart;
     $hours = (int) ($time / 60 / 60);
@@ -118,25 +158,26 @@ abstract class Command extends BaseCommand
    * @param InputInterface $input
    * @param OutputInterface $output
    *
-   * @return int|null
+   * @return int
    */
-  protected function execute(InputInterface $input, OutputInterface $output): ?int
+  protected function execute(InputInterface $input, OutputInterface $output): int
   {
     $this->timeStartScript = microtime(true);
     $this->init($input, $output)->start();
     try {
-      if($this->container->has("austral.entity.mapping.listener") && $this->initEntityMapping)
-      {
-        $mappingListener = $this->container->get('austral.entity.mapping.listener');
-        $mappingListener->initEntityAnnotations();
-      }
+      $consoleEvent = new ConsoleEvent();
+      $this->dispatcher?->dispatch($consoleEvent, ConsoleEvent::EVENT_CONSOLE_EXECUTE_BEFORE);
       $this->executeCommand($input, $output);
+      $this->dispatcher?->dispatch($consoleEvent, ConsoleEvent::EVENT_CONSOLE_EXECUTE_AFTER);
       $this->stop();
       return self::SUCCESS;
     }
     catch(Exception $e) {
-      $errorConsole = new ConsoleErrorEvent($input, $output, $e, $this);
-      $this->container->get('event_dispatcher')->dispatch($errorConsole, "console.error");
+      if($this->dispatcher)
+      {
+        $errorConsole = new ConsoleErrorEvent($input, $output, $e, $this);
+        $this->dispatcher->dispatch($errorConsole, "console.error");
+      }
       $this->viewMessage($e->getMessage(), "error");
       $this->executeStopCommand();
       $this->stop();
@@ -145,7 +186,7 @@ abstract class Command extends BaseCommand
   }
 
   /**
-   * @return array
+   * @return array<int>
    */
   public function getSubscribedSignals(): array
   {
@@ -153,13 +194,15 @@ abstract class Command extends BaseCommand
   }
 
   /**
-   * @param int $signal
    *
-   * @return void
+   * @param int $signal
+   * @param int|false $previousExitCode
+   * @return false|int
    */
-  public function handleSignal(int $signal)
+  public function handleSignal(int $signal, int|false $previousExitCode = 0): false|int
   {
     $this->stopCommand();
+    return parent::handleSignal($signal, $previousExitCode);
   }
 
   /**
@@ -177,41 +220,19 @@ abstract class Command extends BaseCommand
     return $this;
   }
 
-  protected function executeStopCommand() {}
+  /**
+   * executeStopCommand
+   *
+   * @return void
+   */
+  protected function executeStopCommand():void {}
 
   /**
    * @param InputInterface $input
    * @param OutputInterface $output
-   */
-  abstract protected function executeCommand(InputInterface $input, OutputInterface $output);
-
-  /**
-   * @return ContainerInterface
-   *
-   * @throws LogicException
-   */
-  protected function getContainer(): ContainerInterface
-  {
-    if (null === $this->container) {
-      $application = $this->getApplication();
-      if (null === $application) {
-        throw new LogicException('The container cannot be retrieved as the application instance is not yet set.');
-      }
-
-      $this->container = $application->getKernel()->getContainer();
-    }
-
-    return $this->container;
-  }
-
-  /**
-   * @param ContainerInterface $container
    *
    * @return void
    */
-  public function setContainer(ContainerInterface $container)
-  {
-    $this->container = $container;
-  }
+  abstract protected function executeCommand(InputInterface $input, OutputInterface $output): void;
 
 }

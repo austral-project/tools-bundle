@@ -28,17 +28,12 @@ class StatusChecker extends Command
   /**
    * @var string
    */
-  protected static $defaultName = 'austral:tools:services-status';
-
-  /**
-   * @var string
-   */
   protected string $titleCommande = "Services Status checker";
 
   /**
    * {@inheritdoc}
    */
-  protected function configure()
+  protected function configure(): void
   {
     $this
       ->setDefinition([
@@ -58,17 +53,24 @@ EOF
   }
 
   /**
-   * @var ServicesStatusChecker
+   * @var ServicesStatusChecker|null
    */
-  protected ServicesStatusChecker $servicesStatusChecker;
+  protected ?ServicesStatusChecker $servicesStatusChecker = null;
 
   /**
    * @param InputInterface $input
    * @param OutputInterface $output
    */
-  protected function executeCommand(InputInterface $input, OutputInterface $output)
+  protected function executeCommand(InputInterface $input, OutputInterface $output): void
   {
-    $this->servicesStatusChecker = $this->container->get('austral.tools.services.status-checker');
+    $serviceStatusChecker =  $this->container?->get('austral.tools.status-checker');
+    if (!$serviceStatusChecker instanceof ServicesStatusChecker) {
+      throw new \LogicException(sprintf(
+        "Service 'austral.tools.status-checker' must implement %s",
+        ServicesStatusChecker::class
+      ));
+    }
+    $this->servicesStatusChecker = $serviceStatusChecker;
     if($input->getOption("service")) {
       $sleep = $input->getOption("sleep") ? : $this->servicesStatusChecker->getSleep();
       while(!$this->commandeStop) {
@@ -84,9 +86,9 @@ EOF
   /**
    * @return void
    */
-  protected function executeStopCommand()
+  protected function executeStopCommand(): void
   {
-    $this->servicesStatusChecker->write("stop");
+    $this->servicesStatusChecker?->write("stop");
   }
 
 }

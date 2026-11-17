@@ -11,23 +11,23 @@
 namespace Austral\ToolsBundle\Configuration;
 
 /**
- * Austral Parameters Interface.
+ * Austral Configuration Interface.
  * @author Matthieu Beurel <matthieu@austral.dev>
  */
 interface ConfigurationInterface
 {
 
   /**
-   * @return array
+   * @return array<mixed>
    */
   public function all(): array;
 
   /**
    * @param string $key
-   * @param null $default
+   * @param mixed|null $default
    *
-   * @return array|string
+   * @return mixed
    */
-  public function get(string $key, $default = null);
+  public function get(string $key, mixed $default = null): mixed;
 
 }

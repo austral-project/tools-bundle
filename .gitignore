@@ -3,6 +3,8 @@
 /.project
 /.idea
 *~
+.phpunit.result.cache
+.phpunit.cache/
 ####< Project ###
 
 ###> Mac ###

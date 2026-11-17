@@ -10,7 +10,6 @@
 
 namespace Austral\ToolsBundle\Exception;
 
-
 /**
  * Austral AccessDeniedAndRedirectException.
  * @author Matthieu Beurel <matthieu@austral.dev>
@@ -20,16 +19,25 @@ class AccessDeniedAndRedirectException extends \RuntimeException
 {
 
   /**
-   * @var mixed|null
+   * @var string|null
    */
-  private $routeRedirect;
+  private ?string $routeRedirect;
 
   /**
-   * @var mixed
+   * @var int|null
    */
-  private $statusCode;
+  private ?int $statusCode;
 
-  public function __construct($statusCode, $message = null, $routeRedirect = null, \Exception $previous = null, $code = 0)
+  /**
+   * AccessDeniedAndRedirectException constructor
+   *
+   * @param int $statusCode
+   * @param string $message
+   * @param string|null $routeRedirect
+   * @param \Exception|null $previous
+   * @param int $code
+   */
+  public function __construct(int $statusCode, string $message, ?string $routeRedirect = null, ?\Exception $previous = null, int $code = 0)
   {
     $this->statusCode = $statusCode;
     $this->routeRedirect = $routeRedirect;
@@ -37,17 +45,17 @@ class AccessDeniedAndRedirectException extends \RuntimeException
   }
 
   /**
-   * @return mixed
+   * @return int|null
    */
-  public function getStatusCode()
+  public function getStatusCode(): ?int
   {
     return $this->statusCode;
   }
 
   /**
-   * @return mixed|null
+   * @return string|null
    */
-  public function getRouteRedirect()
+  public function getRouteRedirect(): ?string
   {
     return $this->routeRedirect;
   }

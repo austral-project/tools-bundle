@@ -1,50 +1,76 @@
 {
-  "name":                                     "austral/tools-bundle",
-  "type":                                     "symfony-bundle",
-  "description":                              "Austral Tools function and Abstract Class squelette",
-  "keywords":                                 ["Austral", "Tools"],
-  "license":                                  "MIT",
-  "homepage":                                 "https://austral.dev",
-  "authors": [
-    {
-      "name":                                 "Matthieu Beurel",
-      "email":                                "matthieu@austral.dev",
-      "role":                                 "Developer"
+    "name": "austral/tools-bundle",
+    "type": "symfony-bundle",
+    "description": "Austral Tools function and Abstract Class squelette",
+    "keywords": [
+        "Austral",
+        "Tools"
+    ],
+    "license": "MIT",
+    "homepage": "https://austral.dev",
+    "authors": [
+        {
+            "name": "Matthieu Beurel",
+            "email": "matthieu@austral.dev",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": ">=8.2 <9.0",
+        "austral/contracts": "^4.0",
+        "symfony/console": "^7.4",
+        "symfony/runtime": "^7.4",
+        "symfony/dotenv": "^7.4",
+        "symfony/framework-bundle": "^7.4",
+        "symfony/process": "^7.4",
+        "symfony/serializer": "^7.4",
+        "symfony/string": "^7.4",
+        "symfony/yaml": "^7.4",
+        "symfony/contracts": "^3.5",
+        "twig/twig": "^3.0",
+        "twig/extra-bundle": "^3.0",
+        "twig/string-extra": "^3.2",
+        "gedmo/doctrine-extensions": "^v3.21",
+        "ramsey/uuid": "^4.9",
+        "adbario/php-dot-notation": "^3.3.0"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.64",
+        "phpstan/phpstan": "^2.0",
+        "phpstan/phpstan-symfony": "^2.0",
+        "phpunit/phpunit": "^10.5 || ^11",
+        "rector/rector": "^2.0",
+        "symfony/browser-kit": "^7.4",
+        "symfony/css-selector": "^7.4",
+        "symfony/debug-bundle": "^7.4",
+        "symfony/phpunit-bridge": "^7.4",
+        "symfony/stopwatch": "^7.4",
+        "symfony/var-dumper": "^7.4",
+        "symfony/web-profiler-bundle": "^7.4"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "autoload": {
+        "psr-4": {
+            "Austral\\ToolsBundle\\": ""
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Austral\\ToolsBundle\\Tests\\": "Tests/"
+        }
+    },
+    "scripts": {
+        "test": "php -d assert.exception=1 vendor/bin/phpunit",
+        "stan": "vendor/bin/phpstan analyse",
+        "rector": "vendor/bin/rector process --ansi"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "extra": {
+        "symfony": {
+            "allow-contrib": true
+        }
     }
-  ],
-  "require": {
-    "php":                                    "^8.0 || ^8.1 || ^8.2",
-
-    "symfony/console":                        "^5.4 || ^6.4",
-    "symfony/dotenv":                         "^5.4 || ^6.4",
-    "symfony/framework-bundle":               "^5.4 || ^6.4",
-    "symfony/process":                        "^5.4 || ^6.4",
-    "symfony/serializer":                     "^5.4 || ^6.4",
-    "symfony/string":                         "^5.4 || ^6.4",
-    "symfony/yaml":                           "^5.4 || ^6.4",
-
-    "twig/twig":                              "^3.0",
-    "twig/extra-bundle":                      "^3.0",
-    "twig/string-extra":                      "^3.2",
-
-    "gedmo/doctrine-extensions":              "^3.0",
-    "ramsey/uuid":                            "^3.0",
-    "adbario/php-dot-notation":               "^2.2"
-  },
-  "require-dev": {
-    "symfony/css-selector":                   "^5.4 || ^6.4",
-    "symfony/phpunit-bridge":                 "^5.4 || ^6.4",
-    "symfony/browser-kit":                    "^5.4 || ^6.4",
-    "symfony/debug-bundle":                   "^5.4 || ^6.4",
-    "symfony/stopwatch":                      "^5.4 || ^6.4",
-    "symfony/var-dumper":                     "^5.4 || ^6.4",
-    "symfony/web-profiler-bundle":            "^5.4 || ^6.4"
-  },
-  "config": {
-    "sort-packages":                          true
-  },
-  "autoload": {
-    "psr-4": { "Austral\\ToolsBundle\\": "" }
-  },
-  "minimum-stability":                        "dev"
 }

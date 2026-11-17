@@ -1,13 +1,15 @@
 services:
   _defaults:
+    autowire:     true
     public:       false
 
-  ##### Command to generate Roles with the defined modules
+  ##### Command Status checker
   austral.tools.status-checker.command:
     class:        Austral\ToolsBundle\Command\StatusChecker
     tags:
       - { name: console.command, command: "austral:tools:status-checker" }
 
+  ##### Command Make Entity
   austral.make.command:
     class:        Austral\ToolsBundle\Command\MakeEntity
     tags:

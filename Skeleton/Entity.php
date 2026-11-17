@@ -11,7 +11,7 @@
 namespace ##ENTITY_NAMESPACE##;
 
 use Austral\EntityBundle\Entity\Entity;
-use Austral\EntityBundle\Entity\EntityInterface;##ENTITY_USE##
+use Austral\Contracts\Entity\EntityInterface;##ENTITY_USE##
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 

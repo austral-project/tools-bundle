@@ -11,6 +11,7 @@
 namespace Austral\ToolsBundle\Services;
 
 use Austral\ToolsBundle\AustralTools;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Process\Process;
 
@@ -37,22 +38,29 @@ Class ServicesStatusChecker
   protected int $sleep = 5;
 
   /**
-   * @var array
+   * @var array<int|string, mixed>
    */
   protected array $services;
 
   /**
-   * Debug constructor.
+   * ServicesStatusChecker constructor
+   *
+   * @param ContainerInterface $container
+   * @param string $projectDir
+   * @param array<string, mixed> $services
    */
-  public function __construct(ContainerInterface $container)
-  {
+  public function __construct(
+    #[Autowire(service: 'service_container')] ContainerInterface $container,
+    #[Autowire('%kernel.project_dir%')] string $projectDir,
+    #[Autowire('%austral.tools.services%')] array $services
+  ) {
     $this->container = $container;
     $this->pathFileStatus = AustralTools::join(
-      $this->container->getParameter("kernel.project_dir"),
+      $projectDir,
       "var",
       "services.status"
     );
-    $this->services = $this->container->getParameter("austral.tools.services");
+    $this->services = $services;
   }
 
   /**
@@ -68,7 +76,7 @@ Class ServicesStatusChecker
    *
    * @return $this
    */
-  public function write(string $forceStatus = null): ServicesStatusChecker
+  public function write(?string $forceStatus = null): static
   {
     $servicesStatusChecker = $this->createDefaultServicesStatus();
     foreach($this->services as $key => $service)
@@ -80,35 +88,34 @@ Class ServicesStatusChecker
         $status = "stop";
         $command = "ps aux | grep -e \"{$service['command']}\" | grep -v grep | awk '{ print $2 }'";
         $process = Process::fromShellCommandline($command);
-        $process->run(function ($type, $buffer) use(&$status) {
+        $process->run(function ($type) use(&$status) {
           if (Process::ERR === $type) {
             $status = "error";
           } else {
             $status = "run";
           }
         });
-        $servicesStatusChecker["services"][$key] = $this->createStatusByService($service, $status);
       }
-
+      $servicesStatusChecker["services"][$key] = $this->createStatusByService($service, $status);
     }
     $this->save($servicesStatusChecker);
     return $this;
   }
 
   /**
-   * @return array
+   * @return array<string, mixed>
    */
   protected function createDefaultServicesStatus(): array
   {
-    $servicesStatus = array();
+    $servicesStatus = [];
     $servicesStatus["update"] = date("Y-m-d H:i:s");
     $servicesStatus['refresh_delay'] = $this->sleep;
-    $servicesStatus['services'] = array();
+    $servicesStatus['services'] = [];
     return $servicesStatus;
   }
 
   /**
-   * @return array
+   * @return array<string, mixed>
    * @throws \Exception
    */
   public function read(): array
@@ -124,21 +131,21 @@ Class ServicesStatusChecker
    */
   public function getServiceIsRunByCommand(string $command): bool
   {
-    $service = AustralTools::getValueByKey($this->getServicesByStatusFinal(), $command, array());
-    return AustralTools::getValueByKey($service, "status", "stop") === "run";
+    $service = AustralTools::valueByKey($this->getServicesByStatusFinal(), $command, []);
+    return AustralTools::valueByKey($service, "status", "stop") === "run";
   }
 
   /**
-   * @return array
+   * @return array<string, mixed>
    * @throws \Exception
    */
   protected function getServicesByStatusFinal(): array
   {
     $servicesByStatus = $this->getFileContent();
-    $refreshDelay = AustralTools::getValueByKey($servicesByStatus, "refresh_delay", $this->sleep);
+    $refreshDelay = AustralTools::valueByKey($servicesByStatus, "refresh_delay", $this->sleep);
 
     $commandStatus = "stop";
-    if($updates = AustralTools::getValueByKey($servicesByStatus, "update"))
+    if($updates = AustralTools::valueByKey($servicesByStatus, "update"))
     {
       $updatesDate = new \DateTime($updates);
       $dateNow = new \DateTime();
@@ -149,11 +156,11 @@ Class ServicesStatusChecker
       }
     }
 
-    $servicesByStatusFinal = array();
+    $servicesByStatusFinal = [];
     foreach($this->services as $key => $service)
     {
       $statusFinal = "stop";
-      if($serviceByStatus = AustralTools::getValueByKey(AustralTools::getValueByKey($servicesByStatus, 'services', array()), $key, array()))
+      if($serviceByStatus = AustralTools::valueByKey(AustralTools::valueByKey($servicesByStatus, 'services', []), $key, []))
       {
         if($commandStatus == "run") {
           $statusFinal = $serviceByStatus["status"];
@@ -165,35 +172,37 @@ Class ServicesStatusChecker
   }
 
   /**
-   * @return array|mixed
+   * @return array<string, mixed>
    */
-  protected function getFileContent()
+  protected function getFileContent(): array
   {
     if(file_exists($this->pathFileStatus))
     {
       $fileContent = file_get_contents($this->pathFileStatus);
-      return json_decode($fileContent, true);
+      $jsonEncode = json_decode(is_string($fileContent) ? $fileContent : "{}", true);
+      return  is_array($jsonEncode) ? $jsonEncode : [];
     }
-    return array();
+    return [];
   }
 
   /**
-   * @param array $servicesStatus
+   * @param array<string, mixed> $servicesStatus
    *
-   * @return void
+   * @return $this
    */
-  protected function save(array $servicesStatus)
+  protected function save(array $servicesStatus): static
   {
     file_put_contents($this->pathFileStatus, json_encode($servicesStatus));
+    return $this;
   }
 
   /**
-   * @param array $service
-   * @param $status
+   * @param array<string, mixed> $service
+   * @param string $status
    *
-   * @return array
+   * @return array<string, mixed>
    */
-  protected function createStatusByService(array $service, $status): array
+  protected function createStatusByService(array $service, string $status): array
   {
     $serviceStatus = $service;
     $serviceStatus["status"] = $status;

@@ -13,18 +13,18 @@ namespace Austral\ToolsBundle\TwigExtension;
 use Austral\ToolsBundle\AustralTools;
 
 use Ramsey\Uuid\Uuid;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Twig\Attribute\AsTwigFilter;
+use Twig\Attribute\AsTwigFunction;
+use Twig\Attribute\AsTwigTest;
 use Twig\Environment;
-use Twig\Extension\AbstractExtension;
-use Twig\TwigFilter;
-use Twig\TwigFunction;
-use Twig\TwigTest;
 
 /**
  * Austral Tools Twig Extension.
  * @author Matthieu Beurel <matthieu@austral.dev>
  * @final
  */
-class ToolsTwig extends AbstractExtension
+class ToolsTwig
 {
 
   /**
@@ -37,128 +37,87 @@ class ToolsTwig extends AbstractExtension
    *
    * @param string $kernelProjectDir
    */
-  public function __construct(string $kernelProjectDir)
-  {
+  public function __construct(
+    #[Autowire("%kernel.project_dir%")] string $kernelProjectDir
+  ) {
     $this->kernelProjectDir = $kernelProjectDir;
   }
 
   /**
-   * @return TwigFilter[]
+   * dump
+   *
+   * @param mixed ...$values
+   *
+   * @return void
    */
-  public function getFilters(): array
-  {
-    return [
-      new TwigFilter('tools_dump', [$this, 'dump']),
-      new TwigFilter('tools_dump_force', [$this, 'dumpForce']),
-      new TwigFilter('tools_dump_kill', [$this, 'dumpKill']),
-
-      new TwigFilter('value_by_key', [$this, 'valueByKey']),
-      new TwigFilter('array_to_string', [$this, 'arrayToString']),
-      new TwigFilter('unset_in_array', [$this, 'unsetInArray']),
-      new TwigFilter('ksort', [$this, 'ksort']),
-      new TwigFilter('twig_filter_exists', [$this, 'twigFilterExists'], ['needs_environment' => true]),
-      new TwigFilter('remove_multi_br', [$this, 'removeMultiBr']),
-
-      new TwigFilter('file_exist', [$this, 'fileExist']),
-      new TwigFilter('asset_exist', [$this, 'assetExist']),
-      new TwigFilter('file_size', [$this, 'fileSize']),
-      new TwigFilter('file_mime_type', [$this, 'fileMimeType']),
-      new TwigFilter('file_is_image', [$this, 'isImage']),
-      new TwigFilter('file_image_size', [$this, 'imageSize']),
-    ];
-  }
-
-  /**
-   * @return TwigTest[]
-   */
-  public function getTests(): array
-  {
-    return [
-      new TwigTest('instanceof', array($this, 'isInstanceOf')),
-      new TwigTest('filter_exists', array($this, 'twigFilterExists'), ['needs_environment' => true]),
-    ];
-  }
-
-  /**
-   * @return TwigFunction[]
-   */
-  public function getFunctions(): array
-  {
-    return array(
-      "tools_dump"              => new TwigFunction("tools_dump", array($this, "dump")),
-      "tools_dump_force"        => new TwigFunction("tools_dump_force", array($this, "dumpForce")),
-      "tools_dump_kill"         => new TwigFunction("tools_dump_kill", array($this, "dumpKill")),
-      "is_dev"                  => new TwigFunction("tools_is_dev", array($this, "isDev")),
-      "value_by_key"            => new TwigFunction("value_by_key", array($this, "valueByKey")),
-      "array_to_string"         => new TwigFunction("array_to_string", array($this, "arrayToString")),
-      "unset_in_array"          => new TwigFunction("unset_in_array", array($this, "unsetInArray")),
-      "ksort"                   => new TwigFunction("ksort", array($this, "ksort")),
-      "uuid"                    => new TwigFunction("uuid", array($this, "uuid")),
-      "add_in_array"            => new TwigFunction("add_in_array", array($this, "addInArray")),
-      "twig_filter_exists"      => new TwigFunction('twig_filter_exists', array($this, 'twigFilterExists'), ['needs_environment' => true]),
-      "remove_multi_br"         => new TwigFunction("remove_multi_br", array($this, "removeMultiBr")),
-
-      "assets_exist"            => new TwigFunction("asset_exist", array($this, "assetExist")),
-      "file_exist"              => new TwigFunction("file_exist", array($this, "fileExist")),
-      "file_size"               => new TwigFunction("file_size", array($this, "fileSize")),
-      "file_mime_type"          => new TwigFunction("file_mime_type", array($this, "fileMimeType")),
-      "file_is_image"           => new TwigFunction("file_is_image", array($this, "isImage")),
-      "file_image_size"         => new TwigFunction("file_image_size", array($this, "imageSize")),
-    );
-  }
-
-  /**
-   */
-  public function dump()
+  #[AsTwigFilter('tools_dump')]
+  #[AsTwigFunction('tools_dump')]
+  public function dump(mixed ...$values): void
   {
     $_SERVER['APP_DEBUG_TRACE_NUMBER'] = 3;
-    AustralTools::dump(func_get_args());
+    AustralTools::dump($values);
     $_SERVER['APP_DEBUG_TRACE_NUMBER'] = 1;
   }
 
   /**
    * @return bool
    */
+  #[AsTwigFunction('is_dev')]
   public function isDev(): bool
   {
     return AustralTools::isAppDebug();
   }
 
   /**
-   * @return void
-   */
-  public function dumpForce()
-  {
-    AustralTools::dumpForce(func_get_args());
-  }
-
-  /**
-   * @return void
-   */
-  public function dumpKill()
-  {
-    AustralTools::dumpKill(func_get_args());
-  }
-
-  /**
-   * @param $array
-   * @param string $key
-   * @param null $default
+   * @param mixed ...$values
    *
-   * @return mixed|string|string[]
+   * @return void
    */
-  public function valueByKey($array, string $key, $default = null)
+  #[AsTwigFilter('tools_dump_force')]
+  #[AsTwigFunction('tools_dump_force')]
+  public function dumpForce(mixed ...$values): void
   {
-    return AustralTools::getValueByKey($array, $key, $default);
+    AustralTools::dumpForce($values);
   }
 
   /**
-   * @param array $array
+   * @param mixed ...$values
+   *
+   * @return void
+   */
+  #[AsTwigFilter('tools_dump_kill')]
+  #[AsTwigFunction('tools_dump_kill')]
+  public function dumpKill(mixed ...$values): void
+  {
+    AustralTools::dumpKill($values);
+  }
+
+  /**
+   * Returns the value of an array if the key exists
+   *
+   * @param array<string|int, mixed>|object $array $array
+   * @param string|int $key     key to get
+   * @param mixed $default      default
+   *
+   * @return mixed
+   */
+  #[AsTwigFilter('value_by_key')]
+  #[AsTwigFunction('value_by_key')]
+  public function valueByKey(array|object $array, string|int $key, mixed $default = null): mixed
+  {
+    return AustralTools::valueByKey($array, $key, $default);
+  }
+
+  /**
+   * @param array<string|int, mixed> $array
    * @param bool $html
+   * @param int $lvl
    *
    * @return string
    */
-  public function arrayToString(array $array = array(), bool $html = false): string
+  #[AsTwigFilter('array_to_string')]
+  #[AsTwigFunction('array_to_string')]
+  public static function arrayToString(array $array = [], bool $html = false, int $lvl = 0): string
   {
     return AustralTools::arrayToString($array, $html);
   }
@@ -167,40 +126,47 @@ class ToolsTwig extends AbstractExtension
    * @return string
    * @throws \Exception
    */
+  #[AsTwigFunction('uuid')]
   public function uuid(): string
   {
     return Uuid::uuid4()->toString();
   }
 
   /**
-   * @param array $array
-   * @param array $keys
+   * @param array<string, mixed> $array
+   * @param array<string, mixed>|string $keys
+   * @param int $num
    *
-   * @return array
+   * @return array<string, mixed>
    */
-  public function unsetInArray(array $array, array $keys): array
+  #[AsTwigFilter('unset_in_array')]
+  #[AsTwigFunction('unset_in_array')]
+  public static function unsetInArray(array $array, array|string $keys, int $num = 0): array
   {
     return AustralTools::unsetInArray($array, $keys);
   }
 
   /**
-   * @param array $array
-   * @param null $key
-   * @param null $values
+   * @param array<int|string, mixed> $array
+   * @param int|string|null $key
+   * @param mixed|null $values
    *
-   * @return array
+   * @return array<int|string, mixed>
    */
-  public function addInArray(array $array, $key = null, $values = null): array
+  #[AsTwigFunction('add_in_array')]
+  public function addInArray(array $array, int|string|null $key = null, mixed $values = null): array
   {
     $array[$key] = $values;
     return $array;
   }
 
   /**
-   * @param array $array
+   * @param array<int|string, mixed> $array
    *
-   * @return array
+   * @return array<int|string, mixed>
    */
+  #[AsTwigFilter('ksort')]
+  #[AsTwigFunction('ksort')]
   public function ksort(array $array): array
   {
     ksort($array);
@@ -209,22 +175,27 @@ class ToolsTwig extends AbstractExtension
 
   /**
    * @param Environment $twig
-   * @param $name
+   * @param string $name
    *
    * @return bool
    */
-  public function twigFilterExists(Environment $twig, $name): bool
+  #[AsTwigFilter('twig_filter_exists', needsEnvironment: true)]
+  #[AsTwigTest('filter_exists', needsEnvironment: true)]
+  #[AsTwigFunction('twig_filter_exists', needsEnvironment: true)]
+  public function twigFilterExists(Environment $twig, string $name): bool
   {
     return (bool)$twig->getFilter($name);
   }
 
   /**
-   * @param $var
-   * @param $instance
+   * @param \IteratorAggregate $var
+   * @param object|class-string $instance
    *
    * @return bool
+   * @throws \ReflectionException
    */
-  public function isInstanceOf($var, $instance): bool
+  #[AsTwigTest('instanceof')]
+  public function isInstanceOf(\IteratorAggregate $var, object|string $instance): bool
   {
     $reflexionClass = new \ReflectionClass($instance);
     return $reflexionClass->isInstance($var);
@@ -235,6 +206,8 @@ class ToolsTwig extends AbstractExtension
    *
    * @return bool
    */
+  #[AsTwigFilter('asset_exist')]
+  #[AsTwigFunction('asset_exist')]
   public function assetExist(string $assetPath): bool
   {
     $realAssetPath = AustralTools::join($this->kernelProjectDir, "public", $assetPath);
@@ -246,6 +219,8 @@ class ToolsTwig extends AbstractExtension
    *
    * @return bool
    */
+  #[AsTwigFilter('file_exist')]
+  #[AsTwigFunction('file_exist')]
   public function fileExist(string $filePath): bool
   {
     return file_exists($filePath) && is_file($filePath);
@@ -257,7 +232,9 @@ class ToolsTwig extends AbstractExtension
    *
    * @return false|int|string
    */
-  public function fileSize(string $filePath, bool $humanize = false)
+  #[AsTwigFilter('file_size')]
+  #[AsTwigFunction('file_size')]
+  public function fileSize(string $filePath, bool $humanize = false): false|int|string
   {
     if($this->fileExist($filePath))
     {
@@ -271,6 +248,8 @@ class ToolsTwig extends AbstractExtension
    *
    * @return string|null
    */
+  #[AsTwigFilter('file_mime_type')]
+  #[AsTwigFunction('file_mime_type')]
   public function fileMimeType(string $filePath): ?string
   {
     return AustralTools::mimeType($filePath);
@@ -281,6 +260,8 @@ class ToolsTwig extends AbstractExtension
    *
    * @return bool
    */
+  #[AsTwigFilter('file_is_image')]
+  #[AsTwigFunction('file_is_image')]
   public function isImage(string $filePath): bool
   {
     return AustralTools::isImage($filePath);
@@ -290,25 +271,32 @@ class ToolsTwig extends AbstractExtension
    * @param string $filePath
    * @param bool $returnArray
    *
-   * @return array|string
+   * @return array<string, int>|string
    */
-  public function imageSize(string $filePath, bool $returnArray = true)
+  #[AsTwigFilter('file_image_size')]
+  #[AsTwigFunction('file_image_size')]
+  public function imageSize(string $filePath, bool $returnArray = true): array|string
   {
     return AustralTools::imageDimension($filePath, $returnArray);
   }
 
   /**
-   * removeBr
+   * removeMultiBr
    *
    * @param string $value
    * @param string $tagName
    * @return string
    */
+  #[AsTwigFilter('remove_multi_br')]
+  #[AsTwigFunction('remove_multi_br')]
   public function removeMultiBr(string $value, string $tagName = "p"): string
   {
-    $value = preg_replace( "/\n/", "", $value);
-    $value = preg_replace( "/\r/", "", $value);
-    return preg_replace( "/(<br( \/|)>){2,}/", "</{$tagName}><{$tagName}>", $value);
+    $normalized = str_replace(["\n", "\r"], '', $value);
+    return preg_replace(
+      '#(<br\s*/?>){2,}#i',
+      "</{$tagName}><{$tagName}>",
+      $normalized
+    ) ?? $normalized;
   }
 
 }

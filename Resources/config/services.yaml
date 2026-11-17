@@ -4,70 +4,29 @@ services:
     autoconfigure: true
     public:        true
 
-
-##### Twig Extension detected
-  Austral\ToolsBundle\TwigExtension\ToolsTwig:  "@twig.extension.tools"
+  ##### Twig Extension
+  Austral\ToolsBundle\TwigExtension\ToolsTwig: ~
   twig.extension.tools:
-    class:        Austral\ToolsBundle\TwigExtension\ToolsTwig
-    arguments:    ['%kernel.project_dir%']
-    tags:
-      - { name: twig.extension }
+    alias:        Austral\ToolsBundle\TwigExtension\ToolsTwig
+    public:       true
 
-##### Debug
-  Austral\ToolsBundle\Services\Debug: "@austral.tools.debug"
-  austral.tools.debug:
-    class:        Austral\ToolsBundle\Services\Debug
+  ##### Debug
+  Austral\ToolsBundle\Services\Debug:
     calls:
       - [ setDebugStopWatch, ['@?debug.stopwatch'] ]
+  austral.tools.debug:
+    alias:        Austral\ToolsBundle\Services\Debug
+    public:       true
 
-##### Services
-  Austral\ToolsBundle\Services\ServicesStatusChecker: "@austral.tools.services.status-checker"
+  ##### Service Status checker
+  Austral\ToolsBundle\Services\ServicesStatusChecker: ~
+  austral.tools.status-checker:
+    alias:        Austral\ToolsBundle\Services\ServicesStatusChecker
+    public:       true
   austral.tools.services.status-checker:
-    class:        Austral\ToolsBundle\Services\ServicesStatusChecker
-    arguments:    ['@service_container']
-
-
-####### gedmo.listener default configuration
-  gedmo.listener.tree:
-    class: Gedmo\Tree\TreeListener
-    tags:
-      - { name: doctrine.event_subscriber, connection: default }
-    calls:
-      - [ setAnnotationReader, [ "@annotation_reader" ] ]
-
-  gedmo.listener.translatable:
-    class: Gedmo\Translatable\TranslatableListener
-    tags:
-      - { name: doctrine.event_subscriber, connection: default }
-    calls:
-      - [ setAnnotationReader, [ "@annotation_reader" ] ]
-      - [ setDefaultLocale, [ "%kernel.default_locale%" ] ]
-      - [ setTranslationFallback, [ false ] ]
-
-  gedmo.listener.timestampable:
-    class: Gedmo\Timestampable\TimestampableListener
-    tags:
-      - { name: doctrine.event_subscriber, connection: default }
-    calls:
-      - [ setAnnotationReader, [ "@annotation_reader" ] ]
-
-  gedmo.listener.sluggable:
-    class: Gedmo\Sluggable\SluggableListener
-    tags:
-      - { name: doctrine.event_subscriber, connection: default }
-    calls:
-      - [ setAnnotationReader, [ "@annotation_reader" ] ]
-
-  gedmo.listener.sortable:
-    class: Gedmo\Sortable\SortableListener
-    tags:
-      - { name: doctrine.event_subscriber, connection: default }
-    calls:
-      - [ setAnnotationReader, [ "@annotation_reader" ] ]
-
-  gedmo.listener.loggable:
-    class: Gedmo\Loggable\LoggableListener
-    tags:
-      - { name: doctrine.event_subscriber, connection: default }
-    calls:
-      - [ setAnnotationReader, [ "@annotation_reader" ] ]
+    alias:        Austral\ToolsBundle\Services\ServicesStatusChecker
+    public:       true
+    deprecated:
+      package:    'austral/tools-bundle'
+      version:    '4.0'
+      message:    'The "%alias_id%" service alias is deprecated, use "austral.tools.status-checker" instead.'

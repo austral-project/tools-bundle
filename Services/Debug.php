@@ -7,7 +7,7 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
+declare(strict_types=1);
 namespace Austral\ToolsBundle\Services;
 
 use Symfony\Component\Stopwatch\Stopwatch;
@@ -15,6 +15,7 @@ use Symfony\Component\Stopwatch\StopwatchEvent;
 
 /**
  * Austral Debug Service.
+ *
  * @author Matthieu Beurel <matthieu@austral.dev>
  */
 Class Debug
@@ -35,7 +36,7 @@ Class Debug
   /**
    * @param Stopwatch|null $stopWatch
    */
-  public function setDebugStopWatch(?Stopwatch $stopWatch = null)
+  public function setDebugStopWatch(?Stopwatch $stopWatch = null): void
   {
     $this->stopWatch = $stopWatch;
   }
@@ -46,12 +47,9 @@ Class Debug
    *
    * @return $this
    */
-  public function stopWatchStart(string $name, string $container = null): Debug
+  public function stopWatchStart(string $name, ?string $container = null): self
   {
-    if($this->stopWatch)
-    {
-      $this->stopWatch->start($name, $container);
-    }
+    $this->stopWatch?->start($name, $container);
     return $this;
   }
 
@@ -60,7 +58,7 @@ Class Debug
    *
    * @return $this
    */
-  public function stopWatchLap(string $name): Debug
+  public function stopWatchLap(string $name): self
   {
     if($this->stopWatch && $this->stopWatch->isStarted($name))
     {
@@ -72,7 +70,7 @@ Class Debug
   /**
    * @param string $name
    *
-   * @return StopwatchEvent
+   * @return StopwatchEvent|null
    */
   public function stopWatchStop(string $name): ?StopwatchEvent
   {

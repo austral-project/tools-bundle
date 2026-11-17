@@ -1,5 +1,4 @@
 parameters:
-
   austral.tools.services:
     - name:     "Services Statut"
       command:  "austral:tools:status-checker"

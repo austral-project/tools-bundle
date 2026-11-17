@@ -20,6 +20,16 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 trait IoTrait
 {
 
+  const MESSAGE_TYPE_SECTION = "section";
+  const MESSAGE_TYPE_TITLE = "title";
+  const MESSAGE_TYPE_TEXT = "text";
+  const MESSAGE_TYPE_NOTE = "note";
+  const MESSAGE_TYPE_COMMENT = "comment";
+  const MESSAGE_TYPE_CAUTION = "caution";
+  const MESSAGE_TYPE_ERROR = "error";
+  const MESSAGE_TYPE_SUCCESS = "success";
+
+
   /**
    * @var SymfonyStyle|null
    */
@@ -35,7 +45,7 @@ trait IoTrait
    *
    * @return $this
    */
-  public function setIo(SymfonyStyle $io)
+  public function setIo(SymfonyStyle $io): static
   {
     $this->io = $io;
     return $this;
@@ -46,47 +56,47 @@ trait IoTrait
    *
    * @return $this
    */
-  public function setOutput(OutputInterface $output)
+  public function setOutput(OutputInterface $output): static
   {
     $this->output = $output;
     return $this;
   }
 
   /**
-   * @param $message
+   * @param string $message
    * @param string|null $type
    * @param bool $viewMessage
    *
    * @return $this
    */
-  protected function viewMessage($message, ?string $type = "section", bool $viewMessage = true)
+  protected function viewMessage(string $message, ?string $type = self::MESSAGE_TYPE_SECTION, bool $viewMessage = true): static
   {
     if($this->io && $viewMessage)
     {
       switch($type)
       {
-        case "section" :
+        case self::MESSAGE_TYPE_SECTION:
           $this->io->section($message);
         break;
-        case "title" :
+        case self::MESSAGE_TYPE_TITLE:
           $this->io->title($message);
         break;
-        case "text" :
+        case self::MESSAGE_TYPE_TEXT:
           $this->io->text($message);
         break;
-        case "note" :
+        case self::MESSAGE_TYPE_NOTE:
           $this->io->note($message);
         break;
-        case "comment" :
+        case  self::MESSAGE_TYPE_COMMENT:
           $this->io->comment($message);
         break;
-        case "caution" :
+        case  self::MESSAGE_TYPE_CAUTION:
           $this->io->caution($message);
         break;
-        case "error" :
+        case  self::MESSAGE_TYPE_ERROR:
           $this->io->error($message);
         break;
-        case "success" :
+        case  self::MESSAGE_TYPE_SUCCESS:
           $this->io->success($message);
         break;
       }
@@ -99,19 +109,17 @@ trait IoTrait
    *
    * @return $this
    */
-  protected function newLine(int $count = 1)
+  protected function newLine(int $count = 1): static
   {
-    if($this->io) {
-      $this->io->newLine($count);
-    }
+    $this->io?->newLine($count);
     return $this;
   }
 
 
   /**
-   * @var array
+   * @var array<string, ProgressBar>
    */
-  protected array $progressBars = array();
+  protected array $progressBars = [];
 
   /**
    * @param string $name
@@ -120,11 +128,7 @@ trait IoTrait
    */
   public function getProgressBar(string $name = "default"): ?ProgressBar
   {
-    if(array_key_exists($name, $this->progressBars))
-    {
-      return $this->progressBars[$name];
-    }
-    return null;
+    return array_key_exists($name, $this->progressBars) ? $this->progressBars[$name] : null;
   }
 
   /**
@@ -134,7 +138,7 @@ trait IoTrait
    *
    * @return $this
    */
-  protected function progressStart(string $name = "default", int $progressBarValue = 100, string $format = " %current%/%max% -- %message%")
+  protected function progressStart(string $name = "default", int $progressBarValue = 100, string $format = " %current%/%max% -- %message%"): static
   {
     if($this->output) {
       ProgressBar::setFormatDefinition('austral', $format);
@@ -151,10 +155,9 @@ trait IoTrait
    *
    * @return $this
    */
-  protected function progressAdvance(string $name = "default", int $step = 1, ?string $message = null)
+  protected function progressAdvance(string $name = "default", int $step = 1, ?string $message = null): static
   {
-    /** @var ProgressBar $progressBar */
-    if($progressBar = $this->getProgressBar($name))
+    if(($progressBar = $this->getProgressBar($name)) instanceof ProgressBar)
     {
       if($message) {
         $progressBar->setMessage($message);
@@ -169,10 +172,9 @@ trait IoTrait
    *
    * @return $this
    */
-  protected function progressFinish(string $name = "default")
+  protected function progressFinish(string $name = "default"): static
   {
-    /** @var ProgressBar $progressBar */
-    if($progressBar = $this->getProgressBar($name))
+    if(($progressBar = $this->getProgressBar($name)) instanceof ProgressBar)
     {
       $progressBar->finish();
     }

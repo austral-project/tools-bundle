@@ -33,7 +33,7 @@ class ##NAME##EntityManager extends EntityManager
    *
    * @return ##NAME##
    */
-  public function create(array $values = array()): ##NAME##
+  public function create(array $values = []): ##NAME##
   {
     return parent::create($values);
   }

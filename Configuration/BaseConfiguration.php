@@ -13,25 +13,25 @@ namespace Austral\ToolsBundle\Configuration;
 use Austral\ToolsBundle\AustralTools;
 
 /**
- * Austral Parameters Absract.
+ * Austral Configuration Abstract.
  * @author Matthieu Beurel <matthieu@austral.dev>
  * @abstract
  */
 abstract Class BaseConfiguration implements ConfigurationInterface
 {
   /**
-   * @var array
+   * @var array<mixed>
    */
   protected array $config;
   /**
-   * @var array
+   * @var array<mixed>
    */
   protected array $flatten;
 
   /**
    * @var string|null
    */
-  protected ?string $prefix;
+  protected ?string $prefix = null;
 
   /**
    * @var int|null
@@ -41,9 +41,9 @@ abstract Class BaseConfiguration implements ConfigurationInterface
   /**
    * Initialize the service
    *
-   * @param array $config Config
+   * @param array<mixed> $config
    */
-  public function __construct(array $config = array())
+  public function __construct(array $config = [])
   {
     $this->config = $config;
     $this->flatten = $this->init(".", $config, "{$this->prefix}.");
@@ -51,13 +51,13 @@ abstract Class BaseConfiguration implements ConfigurationInterface
 
   /**
    * @param string $delimiter
-   * @param null $items
-   * @param string|null $prepend
+   * @param array<mixed> $items
+   * @param string $prepend
    * @param int $niveau
    *
-   * @return array
+   * @return array<mixed>
    */
-  protected function init(string $delimiter = '.', $items = null, ?string $prepend = '', int $niveau = 1): array
+  protected function init(string $delimiter = '.', array $items = [], string $prepend = '', int $niveau = 1): array
   {
     $flatten = [];
     foreach ($items as $key => $value) {
@@ -81,7 +81,7 @@ abstract Class BaseConfiguration implements ConfigurationInterface
   }
 
   /**
-   * @return array
+   * @return array<mixed>
    */
   public function all(): array
   {
@@ -89,7 +89,7 @@ abstract Class BaseConfiguration implements ConfigurationInterface
   }
 
   /**
-   * @return array
+   * @return array<mixed>
    */
   public function allConfig(): array
   {
@@ -100,22 +100,22 @@ abstract Class BaseConfiguration implements ConfigurationInterface
    * @param string $key
    * @param null $default
    *
-   * @return array|mixed|string|null
+   * @return mixed
    */
-  public function getConfig(string $key, $default = null)
+  public function getConfig(string $key, $default = null): mixed
   {
-    return AustralTools::getValueByKey($this->config, $key, $default);
+    return AustralTools::valueByKey($this->config, $key, $default);
   }
 
   /**
    * @param string $key
-   * @param null $default
+   * @param mixed|null $default
    *
-   * @return array|string
+   * @return mixed
    */
-  public function get(string $key, $default = null)
+  public function get(string $key, mixed $default = null): mixed
   {
-    return AustralTools::getValueByKey($this->flatten, sprintf("%s.%s", $this->prefix, $key), $default);
+    return AustralTools::valueByKey($this->flatten, sprintf("%s.%s", $this->prefix, $key), $default);
   }
 
 }

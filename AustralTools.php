@@ -16,6 +16,7 @@ use function Symfony\Component\String\u;
 
 /**
  * Austral Tools.
+ *
  * @author Matthieu Beurel <matthieu@austral.dev>
  * @final
  */
@@ -35,25 +36,23 @@ class AustralTools
    */
   public static function isDebugTrace(): bool
   {
-    return isset($_SERVER['APP_DEBUG_TRACE_NO']) ? false : true;
+    return !isset($_SERVER['APP_DEBUG_TRACE_NO']);
   }
 
   /**
-   * @return int|mixed
+   * @return int
    */
-  public static function numberTrace()
+  public static function numberTrace(): int
   {
-    return isset($_SERVER['APP_DEBUG_TRACE_NUMBER']) ? $_SERVER['APP_DEBUG_TRACE_NUMBER'] : 1;
+    return $_SERVER['APP_DEBUG_TRACE_NUMBER'] ?? 1;
   }
 
   /**
    * Debug all element in argument
-   * 
-   * @param mixed
-   * 
+   *
    * @return void
    */
-  public static function dump()
+  public static function dump(): void
   {
     if(self::isAppDebug())
     {
@@ -63,12 +62,10 @@ class AustralTools
 
   /**
    * Debug all element in argument for prod force
-   * 
-   * @param mixed
-   * 
+   *
    * @return void
    */
-  public static function dumpForce()
+  public static function dumpForce(): void
   {
     self::debug(func_get_args());
   }
@@ -76,11 +73,9 @@ class AustralTools
   /**
    * Debug all element in argument and Die execution
    * 
-   * @param mixed
-   * 
    * @return void and die execution
    */
-  public static function dumpKill()
+  public static function dumpKill(): void
   {
     if(self::isAppDebug())
     {
@@ -92,11 +87,9 @@ class AustralTools
   /**
    * Debug all element in argument and Die execution for prod force and kill
    * 
-   * @param mixed
-   * 
    * @return void and die execution
    */
-  public static function dumpKillForce()
+  public static function dumpKillForce(): void
   {
     self::debug(func_get_args());
     die("AUSTRAL-STOP");
@@ -105,7 +98,7 @@ class AustralTools
   /**
    * @return void
    */
-  private static function debug()
+  private static function debug(): void
   {
     $numargs = func_num_args();
     $params = func_get_args();
@@ -113,7 +106,7 @@ class AustralTools
     if(self::isDebugTrace())
     {
       $debugBacktraceAll = debug_backtrace();
-      $debugBacktrace = self::getValueByKey($debugBacktraceAll, self::numberTrace());
+      $debugBacktrace = self::valueByKey($debugBacktraceAll, self::numberTrace());
       if(array_key_exists("args", $debugBacktrace))
       {
         unset($debugBacktrace["args"]);
@@ -121,10 +114,10 @@ class AustralTools
       if(isset($debugBacktrace["object"]))
       {
         $objectTwig = $debugBacktrace["object"];
-        if(method_exists($objectTwig, "getSourceContext"))
+        if(is_object($objectTwig) && method_exists($objectTwig, "getSourceContext"))
         {
           $sourceContext = $objectTwig->getSourceContext();
-          if(method_exists($sourceContext, "getPath"))
+          if(is_object($sourceContext) && method_exists($sourceContext, "getPath"))
           {
             $debugBacktrace["realPath"] = $sourceContext->getPath();
           }
@@ -137,25 +130,40 @@ class AustralTools
     {
       foreach($params[$i] as $param)
       {
-        self::isAppDebug() ? dump($param) : (var_dump($param).(print("<br/><br/>")));
+        self::isAppDebug() ? dump($param) : var_dump($param);
       }
     }
   }
 
   /**
    * Returns the value of an array, if the key exists
-   *
-   * @param $array
-   * @param string|int $key key to get
-   * @param null|string|array $default default
+   * @deprecated
+   * @param array<string|int, mixed>|object $array $array
+   * @param string|int $key     key to get
+   * @param mixed $default      default
    *
    * @return mixed
    */
-  public static function getValueByKey($array, $key, $default = null)
+  public static function getValueByKey(array|object $array, string|int $key, mixed $default = null): mixed
+  {
+    return self::valueByKey($array, $key, $default);
+  }
+
+  /**
+   * Returns the value of an array, if the key exists
+   *
+   * @param array<string|int, mixed>|object $array $array
+   * @param string|int $key     key to get
+   * @param mixed $default      default
+   *
+   * @return mixed
+   */
+  public static function valueByKey(array|object $array, string|int $key, mixed $default = null): mixed
   {
     $returnValue = $default;
     if(is_object($array))
     {
+      $key = (string) $key;
       $getter = self::createGetterFunction($key);
       if(method_exists($array, $key))
       {
@@ -165,7 +173,7 @@ class AustralTools
       {
         $returnValue =  $array->$getter();
       }
-      elseif(self::usedImplements(get_class($array), "Austral\EntityBundle\Entity\Interfaces\TranslateMasterInterface"))
+      elseif(method_exists($array, "getTranslateCurrent"))
       {
         $translate = $array->getTranslateCurrent();
         if(method_exists($translate, $key))
@@ -178,7 +186,7 @@ class AustralTools
         }
       }
     }
-    elseif(is_array($key) || !is_array($array))
+    elseif(!is_array($array))
     {
       $returnValue = 'Error Tools::getValueByKey() -> $Key is array or $array is not array';
     }
@@ -190,13 +198,13 @@ class AustralTools
   }
 
   /**
-   * @param array $array
-   * @param string|array $keys
+   * @param array<string, mixed> $array
+   * @param array<string|int, mixed>|string $keys
    * @param int $num
    *
-   * @return array
+   * @return array<string, mixed>
    */
-  public static function unsetInArray(array $array, $keys, int $num = 0): array
+  public static function unsetInArray(array $array, array|string $keys, int $num = 0): array
   {
     if(is_array($keys))
     {
@@ -206,7 +214,7 @@ class AustralTools
       {
         $keys = AustralTools::first($keys);
       }
-      if(strpos($key, "->") !== false)
+      if(str_contains($key, "->"))
       {
         $key = str_replace("->", "", $key);
         $array->$key = AustralTools::unsetInArray($array->$key, $keys, $num+1);
@@ -227,14 +235,14 @@ class AustralTools
   }
 
   /**
-   * get first value of an array
+   * get the first value of an array
    *
-   * @param array               $array          source array
-   * @param string|array        $default        default
+   * @param array<string|int, mixed>          $array          source array
+   * @param mixed                 $default        default
    *
    * @return mixed first value
    */
-  public static function first(array $array, $default = null)
+  public static function first(array $array, mixed $default = null): mixed
   {
     if(empty($array))
     {
@@ -246,14 +254,14 @@ class AustralTools
   }
 
   /**
-   * get last value of an array
+   * get the last value of an array
    *
-   * @param array             $array          source array
-   * @param string|array      $default        default
+   * @param array<string|int, mixed>          $array          source array
+   * @param mixed                 $default        default
    *
    * @return mixed last value
    */
-  public static function last(array $array, $default = null)
+  public static function last(array $array, mixed $default = null): mixed
   {
     if(empty($array))
     {
@@ -270,7 +278,7 @@ class AustralTools
   const RANDOM_TYPE_NUMBERS = "numbers";
 
   /**
-   * Generate random string with length and typologie
+   * Generate a random string with length and typologie
    *
    * @param integer $length 8
    * @param string $type    all OR letters OR numbers
@@ -280,30 +288,29 @@ class AustralTools
    */
   public static function random(int $length = 8, string $type = self::RANDOM_TYPE_ALL): string
   {
-    $val = $values = "";
-    if($type === self::RANDOM_TYPE_ALL || $type === self::RANDOM_TYPE_LETTERS)
-    {
-      $values .= 'abcdefghijklmnopqrstuvwxyz';
+    $pool = '';
+    if ($type === self::RANDOM_TYPE_ALL || $type === self::RANDOM_TYPE_LETTERS) {
+      $pool .= 'abcdefghijklmnopqrstuvwxyz';
     }
-    if($type === self::RANDOM_TYPE_ALL || $type === self::RANDOM_TYPE_NUMBERS)
-    {
-      $values .= "0123456789";
+    if ($type === self::RANDOM_TYPE_ALL || $type === self::RANDOM_TYPE_NUMBERS) {
+      $pool .= '0123456789';
     }
-
-    if ($values === '') {
-      throw new \InvalidArgumentException("No character set has been defined for this type");
+    if ($pool === '') {
+      throw new \InvalidArgumentException('No character set has been defined for this type');
     }
-
-    $maxIndex = strlen($values) - 1;
-    for($i = 0; $i < $length; $i++)
-    {
-      $val .= $values[random_int( 0, $maxIndex )];
+    if ($length <= 0) {
+      return '';
     }
-    return $val;
+    $maxIndex = strlen($pool) - 1;
+    $out = '';
+    for ($i = 0; $i < $length; $i++) {
+      $out .= $pool[random_int(0, $maxIndex)];
+    }
+    return $out;
   }
 
   /**
-   * @var array
+   * @var array<string, string>
    */
   private static array $accentsReplacements = array(
     "¥" => "Y", "µ" => "u", "À" => "A", "Á" => "A",
@@ -336,18 +343,18 @@ class AustralTools
   /**
    * Strip string value and filtre delete the useless word
    *
-   * @param string $string         8
-   * @param mixed  $degagements   null
-   * Exemple "Le blog et le site sont super -> blog-site-sont-super"
+   * @param string                            $string        8
+   * @param array<string|int|float, string>   $replacements   array
+   * Example (default French stop words): "Le blog et le site sont super -> blog-site-sont-super"
    *
    * @return string striped
    */
-  public static function stripFilter(string $string, $degagements = null): string
+  public static function stripFilter(string $string, array $replacements = []): string
   {
-    $degagements = $degagements ? : array("a", "de", "du", "des", "ou", "et", "en", "les", "la", "le", "l");
+    $replacements = $replacements ? : array("a", "de", "du", "des", "ou", "et", "en", "les", "la", "le", "l");
     $words = explode("-", self::strip($string));
     foreach($words as $it => $word)
-      if (in_array($word, $degagements)) unset($words[$it]);
+      if (in_array($word, $replacements)) unset($words[$it]);
     return implode("-", $words);
   }
   
@@ -355,52 +362,53 @@ class AustralTools
    * Strip string value
    *
    * @param string $result
-   * @param boolean $tolower
+   * @param boolean $toLower
    * @param boolean $removeAccent
    * @param boolean $removeNoChars
-   * Exemple "The blog is very large -> the-blog-is-very-large"
+   * Example "The blog is very large -> the-blog-is-very-large"
    *
    * @return string striped
    */
-  public static function strip(string $result, bool $tolower = true, bool $removeAccent = true, bool $removeNoChars = true): string
+  public static function strip(string $result, bool $toLower = true, bool $removeAccent = true, bool $removeNoChars = true): string
   {
     if($removeAccent)
       $result  = self::removeAccents($result);
 
-    if ($tolower)
+    if ($toLower)
       $result = strtolower($result);
 
-    $result = preg_replace('!\-!', ' ', $result);
-    $result = preg_replace('!\s+!', ' ', $result);
+    // Unify separators: turn hyphens into spaces
+    $result = str_replace('-', ' ', $result);
 
-    // strip all non word chars
-    if ($removeNoChars)
-      $result = preg_replace('/\W/', ' ', $result);
+    // Collapse multiple spaces into a single one
+    $result = preg_replace('/\s+/', ' ', $result) ?? $result;
 
-    // replace all white space sections with a dash
-    $result = preg_replace('/\ +/', '-', $result);
+    if ($removeNoChars) {
+      // Replace non-alphanumeric characters with a space
+      $result = preg_replace('/[^\p{L}\p{N}]+/u', ' ', $result) ?? $result;
+    }
 
-    // trim dashes
-    $result = preg_replace('/\-$/', '', $result);
-    $result = preg_replace('/^\-/', '', $result);
+    // Replace spaces with hyphens
+    $result = preg_replace('/\s+/', '-', $result) ?? $result;
 
-    return $result;
+    // Trim leading and trailing hyphens
+    return trim($result, '-');
   }
 
   /**
-   * @param $string
+   * @param string $string
    * @param bool $withSlash
    * @param bool $usedStrip
    *
    * @return string
    */
-  public static function slugger($string, bool $withSlash = false, bool $usedStrip = false): string
+  public static function slugger(string $string, bool $withSlash = false, bool $usedStrip = false): string
   {
     $slugger = new AsciiSlugger();
     if($withSlash)
     {
       $strings = explode("/", $string);
-      $slugFinalArray = array();
+      $slugFinalArray = [];
       foreach($strings as $string)
       {
         $slugFinalArray[] = $slugger->slug($usedStrip ? self::strip($string) : u($string)->snake())->lower()->toString();
@@ -415,13 +423,61 @@ class AustralTools
   }
 
   /**
-   * @param $string
+   * @param string $string
    *
    * @return string
    */
-  public static function generatorKey($string): string
+  public static function generatorKey(string $string): string
   {
     return self::strip($string, true, true, false);
+  }
+
+  /**
+   * executeClosureFunction
+   *
+   * @param object $self
+   * @param \Closure(object|null): mixed|string|array<int, string> $closureOrString
+   * @param object|null $object
+   * @param mixed $default
+   *
+   * @return mixed
+   */
+  public static function executeFunction(object $self, \Closure|string|array $closureOrString, object|null $object = null, mixed $default = []): mixed
+  {
+    if($closureOrString instanceof \Closure)
+    {
+      if($object)
+      {
+        return $closureOrString->call($self, $object);
+      }
+      return $default;
+    }
+    if($closureOrString)
+    {
+      $value = null;
+      $parameter = null;
+      if(is_array($closureOrString))
+      {
+        list($closureOrString, $parameter) = $closureOrString;
+      }
+      if(is_object($object) && method_exists($object, $closureOrString))
+      {
+        $value = $object->{$closureOrString}($parameter);
+      }
+      else
+      {
+        $getter = AustralTools::createGetterFunction($closureOrString);
+        if(is_object($object) && method_exists($object, $getter))
+        {
+          $value = $object->$getter($parameter);
+        }
+      }
+      if($value instanceof \DateTime && $parameter) {
+        $value = $value->format($parameter);
+      }
+      return $value;
+    }
+    return $default;
   }
 
   /**
@@ -451,11 +507,11 @@ class AustralTools
    *
    * @return string
    */
-  public static function createFunction(string $value, string $before = null, string $after = null): string
+  public static function createFunction(string $value, ?string $before = null, ?string $after = null): string
   {
     $value = u($value)->camel()->title();
     $value = $before ? $value->ensureStart($before) : $value;
-    $value = $after ? $value->ensureEnd($before) : $value;
+    $value = $after ? $value->ensureEnd($after) : $value;
     return $value->toString();
   }
  
@@ -464,46 +520,42 @@ class AustralTools
    */
   public static function join(): string
   {
-    $parts = func_get_args();
-    $dirtyPath = implode('/', $parts);
-    if(strpos($dirtyPath, '//') !== false)
-    {
-      $dirtyPath = preg_replace('|(/{2,})|', '/', $dirtyPath);
-    }
-    $cleanPath = trim($dirtyPath, '/');
-    if ('/' === DIRECTORY_SEPARATOR)
-    {
-      $cleanPath = '/'.$cleanPath;
-    }
-    else
+    if ('/' !== DIRECTORY_SEPARATOR)
     {
       self::dumpKill('IS NOT UNIX SYSTEM');
     }
-    return $cleanPath;
+    $parts = func_get_args();
+    $dirtyPath = implode('/', $parts);
+    if(str_contains($dirtyPath, '//'))
+    {
+      $dirtyPath = preg_replace('|(/{2,})|', '/', $dirtyPath);
+    }
+    $cleanPath = $dirtyPath ? trim($dirtyPath, '/') : "";
+    return '/'.$cleanPath;
   }
 
   /**
-   * @param $filePath
-   * @param string $unit
+   * @param string|int|float $filePath
+   * @param string|null $unit
    * @param int $precision
    * @param bool $withUnit
    *
    * @return string
    */
-  public static function humanizeSize($filePath, string $unit = "", int $precision = 1, bool $withUnit = true): string
+  public static function humanizeSize(string|int|float $filePath, ?string $unit = null, int $precision = 1, bool $withUnit = true): string
   {
     $bytes = is_numeric($filePath) ? $filePath : filesize($filePath);
-    if(($bytes > (1024**3) && !$unit) || $unit == "Go")
+    if(($bytes >= (1024**3) && !$unit) || $unit == "Go")
     {
-      $size = (round($bytes/(1024**3), $precision)).($withUnit ? " Go" : "");
+      $size = (round($bytes/(1024**3), $precision, PHP_ROUND_HALF_UP)).($withUnit ? " Go" : "");
     }
-    elseif(($bytes > (1024**2) && !$unit) || $unit == "Mo")
+    elseif(($bytes >= (1024**2) && !$unit) || $unit == "Mo")
     {
-      $size = (round($bytes/(1024**2), $precision)).($withUnit ? " Mo" : "");
+      $size = (round($bytes/(1024**2), $precision, PHP_ROUND_HALF_UP)).($withUnit ? " Mo" : "");
     }
-    elseif(($bytes>1024 && !$unit) || $unit == "Ko")
+    elseif(($bytes >= 1024 && !$unit) || $unit == "Ko")
     {
-      $size = (round($bytes/1024)).($withUnit ? " Ko" : "");
+      $size = (round($bytes/1024, 0, PHP_ROUND_HALF_UP)).($withUnit ? " Ko" : "");
     }
     else
     {
@@ -515,25 +567,25 @@ class AustralTools
   /**
    * @param string|null $sizeHumanize
    *
-   * @return float|int|mixed
+   * @return float|int
    */
-  public static function unHumanizeSize(string $sizeHumanize = null)
+  public static function unHumanizeSize(?string $sizeHumanize = null): float|int
   {
     $result = 0;
     if($sizeHumanize) {
       preg_match("/(\d{1,})([a-z]{1,2})/", strtolower($sizeHumanize), $matches);
       if(count($matches) == 3) {
-        if(substr($matches[2], 0, 1) == "g") {
+        if(str_starts_with($matches[2], "g")) {
           $result = $matches[1] * (1024 ** 3);
         }
-        elseif(substr($matches[2], 0, 1) == "m") {
+        elseif(str_starts_with($matches[2], "m")) {
           $result = $matches[1] * (1024 ** 2);
         }
-        elseif(substr($matches[2], 0, 1) == "k") {
+        elseif(str_starts_with($matches[2], "k")) {
           $result = $matches[1] * 1024;
         }
         else {
-          $result = $matches[1];
+          $result = $matches[1] * 1;
         }
       }
     }
@@ -543,22 +595,25 @@ class AustralTools
   /**
    * @param string $filePath
    *
-   * @return string
+   * @return string|null
    */
   public static function mimeType(string $filePath): ?string
   {
     $value = null;
     if(file_exists($filePath))
     {
-      $value = finfo_file(finfo_open(FILEINFO_MIME_TYPE), $filePath);
+      if($finfo = finfo_open(FILEINFO_MIME_TYPE))
+      {
+        $value = finfo_file($finfo, $filePath);
+      }
     }
-    return $value;
+    return $value === false ? null : $value;
   }
 
   /**
    * @param string $filePath
    *
-   * @return string
+   * @return string|null
    */
   public static function extension(string $filePath): ?string
   {
@@ -584,33 +639,39 @@ class AustralTools
   /**
    * @param string $filePath
    * @param bool $returnArray
-   *
-   * @return array|string
+   * @param string $implode
+   * @return array<string, int>|string
    */
-  public static function imageDimension(string $filePath, bool $returnArray = false, string $implode = " x ")
+  public static function imageDimension(string $filePath, bool $returnArray = false, string $implode = " x "): array|string
   {
-    $value = array();
+    $value = [];
     if(file_exists($filePath) && self::isImage($filePath))
     {
-      list($width, $height) = getimagesize($filePath);
-      $value = array(
-        "width"   =>  $width,
-        "height"  =>  $height
-      );
+      $array = getimagesize($filePath);
+      if($array !== false)
+      {
+        list($width, $height) = $array;
+        $value = array(
+          "width"   =>  $width,
+          "height"  =>  $height
+        );
+      }
     }
     return $returnArray ? $value : implode($implode, $value);
   }
 
   /**
-   * @param $class
-   * @param $classUsed
+   * @param string $class
+   * @param string $classUsed
    *
    * @return bool
    */
-  public static function usedClass($class, $classUsed): bool
+  public static function usedClass(string $class, string $classUsed): bool
   {
     $return = false;
-    $classUses = array_merge(class_uses($class), class_parents($class));
+    $classUses = class_uses($class);
+    $classParents = class_parents($class);
+    $classUses = array_merge(is_array($classUses) ? $classUses : [], is_array($classParents) ? $classParents : []);
     if(in_array($classUsed, $classUses))
     {
       return true;
@@ -629,41 +690,25 @@ class AustralTools
   }
 
   /**
-   * @param $class
-   * @param $implementClass
+   * @param mixed $class
+   * @param array<int|string, string>|string $implementClasses
    *
    * @return bool
    */
-  public static function usedImplements($class, $implementClass): bool
+  public static function usedImplements(mixed $class, array|string $implementClasses): bool
   {
-    $return = false;
-    $implementClassUses = class_implements($class);
-    if(in_array($implementClass, $implementClassUses))
-    {
-      return true;
-    }
-    elseif($parents = class_parents($class))
-    {
-      foreach($parents as $parent)
-      {
-        if(self::usedImplements($parent, $implementClassUses))
-        {
-          $return = true;
-        }
-      }
-    }
-    return $return;
+    $targets = (array) $implementClasses;
+    return array_any($targets, fn($iface) => is_a($class, $iface, true));
   }
 
   /**
    * @param string $value
-   * @param null $cryptKey
+   * @param string $cryptKey
    *
    * @return string
    */
-  private static function generateCryptByKey(string $value, $cryptKey = null): string
+  private static function generateCryptByKey(string $value, string $cryptKey = "default_austral_key"): string
   {
-    $cryptKey = $cryptKey ?? "default_austral_key";
     $cryptKey = sha1($cryptKey);
     $counter = 0;
     $var = "";
@@ -680,19 +725,20 @@ class AustralTools
   }
 
   /**
-   * @param string|array $value
-   * @param null $cryptKey
+   * @param array<int|string, mixed>|string $value
+   * @param string $cryptKey
    *
    * @return string
    */
-  public static function encrypte($value, $cryptKey = null): string
+  public static function encrypte(array|string $value, string $cryptKey = "default_austral_key"): string
   {
     if(is_array($value))
     {
       $value = json_encode($value);
+      $value = $value === false ? "" : $value;
     }
-    srand((double)microtime()*1000000);
-    $key = md5(rand(0,32000));
+    srand((int) microtime()*1000000);
+    $key = md5((string) rand(0,32000));
     $counter=0;
     $encryptValue = "";
     for ($ctr=0; $ctr < strlen($value); $ctr++)
@@ -708,12 +754,12 @@ class AustralTools
   }
 
   /**
-   * @param string|array $encryptValue
-   * @param string|null $cryptKey
+   * @param string $encryptValue
+   * @param string $cryptKey
    *
-   * @return string|array
+   * @return string|array<string|int, mixed>
    */
-  public static function decrypte($encryptValue, string $cryptKey = null)
+  public static function decrypte(string $encryptValue, string $cryptKey = "default_austral_key"): array|string
   {
     $encryptValue = self::generateCryptByKey(base64_decode($encryptValue), $cryptKey);
     $value = "";
@@ -735,15 +781,15 @@ class AustralTools
    * @param string|null $value
    * @param string $preg
    *
-   * @return array
+   * @return array<string, string>
    */
   public static function getKeysInValue(?string $value = null, string $preg = '|(%\S+%)|iuU'): array
   {
-    $values = array();
+    $values = [];
     if($value)
     {
       preg_match_all($preg, $value, $matchs);
-      $matchContentValues = AustralTools::getValueByKey($matchs, 1, array());
+      $matchContentValues = AustralTools::getValueByKey($matchs, 1, []);
       if(count($matchContentValues))
       {
         foreach($matchContentValues as $matchContentValue)
@@ -757,38 +803,31 @@ class AustralTools
 
   /**
    * @param string|null $initialVal
-   * @param array $valuesToReplace
-   * @param bool $removeEmpty
-   * @return string|array|null
+   * @param array<string|int, mixed> $valuesToReplace
+   * @param bool $removeEmpty true: keeps the keys without a value in the text; false: replaces them with ""
+   *
+   * @return string|null
    */
-  public static function replaceKeyByValue(string $initialVal = null, array $valuesToReplace = array(), bool $removeEmpty = true): string|array|null
+  public static function replaceKeyByValue(?string $initialVal, array $valuesToReplace = [], bool $removeEmpty = true): ?string
   {
-    if($initialVal)
-    {
-      $values = self::getKeysInValue($initialVal);
-      if($values)
-      {
-        $replaceValues = array();
-        foreach($values as $key => $value)
-        {
-          $keyObject = str_replace(array("%"), "", $value);
-          if($variableReplace = AustralTools::getValueByKey($valuesToReplace, $keyObject, null))
-          {
-            $replaceValues[$value] = $variableReplace;
-          }
-          elseif($removeEmpty)
-          {
-            unset($values[$key]);
-          }
-          else
-          {
-            $replaceValues[$value] = "";
-          }
+    if ($initialVal === null || $initialVal === '') {
+      return $initialVal;
+    }
+    $values = self::getKeysInValue($initialVal);
+    if ($values) {
+      $replaceValues = [];
+      foreach ($values as $key => $value) {
+        $keyObject = str_replace(['%'], '', $value);
+        if ($variableReplace = AustralTools::getValueByKey($valuesToReplace, $keyObject, null)) {
+          $replaceValues[$value] = $variableReplace;
+        } elseif ($removeEmpty) {
+          unset($values[$key]);
+        } else {
+          $replaceValues[$value] = '';
         }
-        if(count($replaceValues))
-        {
-          $initialVal = str_replace($values, $replaceValues, $initialVal);
-        }
+      }
+      if (count($replaceValues)) {
+        $initialVal = str_replace($values, $replaceValues, $initialVal);
       }
     }
     return $initialVal;
@@ -796,12 +835,12 @@ class AustralTools
 
   /**
    * @param string $delimiter
-   * @param null $items
-   * @param string|null $prepend
+   * @param array<string|int, mixed> $items
+   * @param string $prepend
    *
-   * @return array
+   * @return array<string, string>
    */
-  public static function flattenArray(string $delimiter = '.', $items = null, ?string $prepend = ''): array
+  public static function flattenArray(string $delimiter = '.', array $items = [], string $prepend = ''): array
   {
     $flatten = [];
     if(is_array($items))
@@ -836,45 +875,57 @@ class AustralTools
   }
 
   /**
-   * @param array $items
+   * @param array<string|int, mixed> $items
    * @param string $delimiter
    *
-   * @return array
+   * @return array<string, mixed>
    */
-  public static function arrayByFlatten(array $items, $delimiter='.'): array
+  public static function arrayByFlatten(array $items, string $delimiter = '.'): array
   {
-    $new = array();
-    foreach ($items as $key => $value) {
-      $key = "{$key}{$delimiter}element";
-      if (strpos($key, $delimiter) === false) {
-        $new[$key] = is_array($value) ? self::arrayByFlatten($value, $delimiter) : $value;
-        continue;
-      }
+    if ($delimiter === '') {
+      throw new \InvalidArgumentException('Delimiter must be a non-empty string.');
+    }
 
-      $segments = explode($delimiter, $key);
+    $new = [];
+
+    foreach ($items as $key => $value) {
+      /** @var mixed $value */
+      $key = (string) $key;
+      $composedKey = "{$key}{$delimiter}element";
+
+      $segments = explode($delimiter, $composedKey);
       $last = &$new[$segments[0]];
-      if (!is_null($last) && !is_array($last)) {
-        throw new \LogicException(sprintf("The '%s' key has already been defined as being '%s'", $segments[0], gettype($last)));
+
+      if ($last !== null && !is_array($last)) {
+        throw new \LogicException(sprintf(
+          "The '%s' key has already been defined as being '%s'",
+          $segments[0],
+          gettype($last)
+        ));
       }
 
       foreach ($segments as $k => $segment) {
-        if ($k != 0) {
+        if ($k !== 0) {
+          /** @var array<string, mixed> $last */
           $last = &$last[$segment];
         }
       }
-      $last = is_array($value) ? self::arrayByFlatten($value, $delimiter) : $value;
+
+      $last = is_array($value)
+        ? self::arrayByFlatten($value, $delimiter)
+        : $value;
     }
     return $new;
   }
 
   /**
-   * @param array $array
+   * @param array<string|int, mixed> $array
    * @param bool $html
    * @param int $lvl
    *
    * @return string
    */
-  public static function arrayToString(array $array = array(), bool $html = false, int $lvl = 0): string
+  public static function arrayToString(array $array = [], bool $html = false, int $lvl = 0): string
   {
     $text = "";
     $hasTitle = false;
@@ -904,12 +955,46 @@ class AustralTools
       $text .= $html ? "</div>" : "";
       $text .= $html ? "</li>" : "\n";
     }
-
     $content = $html ? "<ul class='austral-array-to-string lvl-{$lvl} ".($hasTitle ? "has-title" : "no-title")."'>" : "";
     $content .= $text;
     $content .= $html ? "</ul>" : "";
     return $content;
   }
+
+  /**
+   * @var array<string, int|float>
+   */
+  private static array $memoryUsageKeys = [];
+
+  /**
+   * memoryUsageStart
+   *
+   * @param string $name
+   * @return void
+   */
+  public static function memoryUsageStart(string $name = "default"): void
+  {
+    self::$memoryUsageKeys[$name] = memory_get_usage();
+  }
+
+  /**
+   * memoryUsageEnd
+   *
+   * @param string $name
+   * @param bool $dump
+   * @return string
+   */
+  public static function memoryUsageEnd(string $name = "default", bool $dump = true): string
+  {
+    $end = memory_get_usage();
+    $start = self::getValueByKey(self::$memoryUsageKeys, $name, 0);
+    $memoryUsed = ($end - $start)." octets";
+    if($dump) {
+      AustralTools::dump($memoryUsed);
+    }
+    return $memoryUsed;
+  }
+
 
 
 }
