@@ -51,12 +51,12 @@
     },
     "autoload": {
         "psr-4": {
-            "Austral\\ToolsBundle\\": ""
+            "Austral\\ToolsBundle\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Austral\\ToolsBundle\\Tests\\": "Tests/"
+            "Austral\\ToolsBundle\\Tests\\": "tests/"
         }
     },
     "scripts": {
