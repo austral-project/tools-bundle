@@ -9,15 +9,15 @@
  * file that was distributed with this source code.
  */
 
-namespace Austral\Tools\EventSubscriber;
+namespace Austral\ToolsBundle\EventSubscriber;
 
-use Austral\Tools\Event\ConsoleEvent;
+use Austral\ToolsBundle\Event\ConsoleEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class ConsoleEventSubscriber implements EventSubscriberInterface
 {
   /**
-   * @return array<mixed>
+   * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>
    */
   public static function getSubscribedEvents(): array
   {

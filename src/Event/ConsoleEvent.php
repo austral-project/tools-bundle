@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Austral\Tools\Event;
+namespace Austral\ToolsBundle\Event;
 
 class ConsoleEvent
 {

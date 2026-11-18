@@ -13,8 +13,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Support for **Symfony 7.4 LTS** (PHP **≥ 8.2**).
 - CI matrix for PHP 8.2/8.3/8.4 + PHPUnit Bridge.
 - Base unit tests and quality tooling (PHPStan level 8, Rector).
+- **BREAKING** `AustralTools::encrypte()` / `decrypte()`: the `$cryptKey` argument is now required (no more default key).
+- `AustralTools::getValueByKey()` is deprecated, use `valueByKey()` instead.
 
 ### Fixed
+
+- Austral commands: the container is taken again from the kernel of the application (it was always `null` with Symfony 7).
+- `ConsoleEvent` and `ConsoleEventSubscriber`: namespace fixed (`Austral\ToolsBundle\…`), the classes could not be autoloaded.
 
 ### Removed
 

@@ -11,7 +11,7 @@
 
 namespace Austral\ToolsBundle\Command\Base;
 
-use Austral\Tools\Event\ConsoleEvent;
+use Austral\ToolsBundle\Event\ConsoleEvent;
 use Austral\ToolsBundle\Traits;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command as BaseCommand;
@@ -22,6 +22,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\HttpKernel\KernelInterface;
 
 /**
  * Austral Abstract Command.
@@ -109,6 +110,16 @@ abstract class Command extends BaseCommand
     if (null === $this->application)
     {
       throw new \LogicException('The container cannot be retrieved as the application instance is not yet set.');
+    }
+    // Symfony 7 no longer injects the container into the commands: it is taken from the kernel
+    // of the application (Symfony\Bundle\FrameworkBundle\Console\Application), as in Austral 3.x.
+    if (null === $this->container && method_exists($this->application, 'getKernel'))
+    {
+      $kernel = $this->application->getKernel();
+      if ($kernel instanceof KernelInterface)
+      {
+        $this->setContainer($kernel->getContainer());
+      }
     }
     $this->setIo(new SymfonyStyle($input, $output));
 
