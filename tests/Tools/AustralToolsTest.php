@@ -386,8 +386,6 @@ class AustralToolsTest extends TestCase
    */
   public function testUsedClass(): void
   {
-    require_once __DIR__ . '/../Fixtures/_class.php';
-
     $this->assertTrue(AustralTools::usedClass(\Austral\ToolsBundle\Tests\TestUsedClass\ChildClass::class, \Austral\ToolsBundle\Tests\TestUsedClass\MyTrait::class));
     $this->assertTrue(AustralTools::usedClass(\Austral\ToolsBundle\Tests\TestUsedClass\ChildClass::class, \Austral\ToolsBundle\Tests\TestUsedClass\ParentClass::class));
     $this->assertFalse(AustralTools::usedClass(\Austral\ToolsBundle\Tests\TestUsedClass\ChildClass::class, \ArrayObject::class));
@@ -400,8 +398,6 @@ class AustralToolsTest extends TestCase
    */
   public function testUsedImplements(): void
   {
-    require_once __DIR__ . '/../Fixtures/_class.php';
-
     $this->assertTrue(AustralTools::usedImplements(\Austral\ToolsBundle\Tests\TestUsedClass\ImplementsChild::class, [\Austral\ToolsBundle\Tests\TestUsedClass\MyInterface::class]));
     $this->assertFalse(AustralTools::usedImplements(\Austral\ToolsBundle\Tests\TestUsedClass\ImplementsChild::class, [\Countable::class]));
   }

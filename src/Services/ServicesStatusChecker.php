@@ -192,6 +192,11 @@ Class ServicesStatusChecker
    */
   protected function save(array $servicesStatus): static
   {
+    $directory = \dirname($this->pathFileStatus);
+    if(!is_dir($directory) && !mkdir($directory, 0775, true) && !is_dir($directory))
+    {
+      throw new \RuntimeException(sprintf('Unable to create the directory "%s".', $directory));
+    }
     file_put_contents($this->pathFileStatus, json_encode($servicesStatus));
     return $this;
   }

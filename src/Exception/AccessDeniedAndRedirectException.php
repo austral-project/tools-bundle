@@ -24,9 +24,9 @@ class AccessDeniedAndRedirectException extends \RuntimeException
   private ?string $routeRedirect;
 
   /**
-   * @var int|null
+   * @var int
    */
-  private ?int $statusCode;
+  private int $statusCode;
 
   /**
    * AccessDeniedAndRedirectException constructor
@@ -45,9 +45,9 @@ class AccessDeniedAndRedirectException extends \RuntimeException
   }
 
   /**
-   * @return int|null
+   * @return int
    */
-  public function getStatusCode(): ?int
+  public function getStatusCode(): int
   {
     return $this->statusCode;
   }

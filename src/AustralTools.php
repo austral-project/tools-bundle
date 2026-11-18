@@ -1,8 +1,8 @@
 <?php
 /*
- * This file is part of the Austral Tools Bundle package.
+ * This file is part of the App package.
  *
- * (c) Austral <support@austral.dev>
+ * (c) Yipikai <support@yipikai.studio>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -69,10 +69,10 @@ class AustralTools
   {
     self::debug(func_get_args());
   }
-  
+
   /**
    * Debug all element in argument and Die execution
-   * 
+   *
    * @return void and die execution
    */
   public static function dumpKill(): void
@@ -83,10 +83,10 @@ class AustralTools
       die("AUSTRAL-STOP");
     }
   }
-  
+
   /**
    * Debug all element in argument and Die execution for prod force and kill
-   * 
+   *
    * @return void and die execution
    */
   public static function dumpKillForce(): void
@@ -185,10 +185,6 @@ class AustralTools
           $returnValue =  $translate->$getter();
         }
       }
-    }
-    elseif(!is_array($array))
-    {
-      $returnValue = 'Error Tools::getValueByKey() -> $Key is array or $array is not array';
     }
     elseif(array_key_exists($key, $array))
     {
@@ -339,7 +335,7 @@ class AustralTools
   {
     return str_replace('!', '', strtr(trim($string), self::$accentsReplacements));
   }
-  
+
   /**
    * Strip string value and filtre delete the useless word
    *
@@ -357,7 +353,7 @@ class AustralTools
       if (in_array($word, $replacements)) unset($words[$it]);
     return implode("-", $words);
   }
-  
+
   /**
    * Strip string value
    *
@@ -514,7 +510,7 @@ class AustralTools
     $value = $after ? $value->ensureEnd($after) : $value;
     return $value->toString();
   }
- 
+
   /**
    * @return string
    */
@@ -843,31 +839,28 @@ class AustralTools
   public static function flattenArray(string $delimiter = '.', array $items = [], string $prepend = ''): array
   {
     $flatten = [];
-    if(is_array($items))
-    {
-      foreach ($items as $key => $value) {
-        $key = str_replace("\x00*\x00", "", $key);
-        if(is_numeric($key))
-        {
-          $flatten[trim($prepend, ".")][$key] = $value;
-        }
-        elseif(is_object($value))
-        {
+    foreach ($items as $key => $value) {
+      $key = str_replace("\x00*\x00", "", $key);
+      if(is_numeric($key))
+      {
+        $flatten[trim($prepend, ".")][$key] = $value;
+      }
+      elseif(is_object($value))
+      {
+        $flatten = array_merge(
+          $flatten,
+          self::flattenArray($delimiter, (array) $value, $prepend.$key.$delimiter)
+        );
+      }
+      else
+      {
+        if (is_array($value) && !empty($value)) {
           $flatten = array_merge(
             $flatten,
-            self::flattenArray($delimiter, (array) $value, $prepend.$key.$delimiter)
+            self::flattenArray($delimiter, $value, $prepend.$key.$delimiter)
           );
-        }
-        else
-        {
-          if (is_array($value) && !empty($value)) {
-            $flatten = array_merge(
-              $flatten,
-              self::flattenArray($delimiter, $value, $prepend.$key.$delimiter)
-            );
-          } else {
-            $flatten[$prepend.$key] = $value;
-          }
+        } else {
+          $flatten[$prepend.$key] = $value;
         }
       }
     }

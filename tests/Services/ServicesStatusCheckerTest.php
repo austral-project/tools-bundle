@@ -20,31 +20,10 @@ class ServicesStatusCheckerTest extends KernelTestCase
   /** @var ContainerInterface|null */
   private ?ContainerInterface $container = null;
 
-  /**
-   * @var string|null
-   */
-  private ?string $projectDir = null;
-
   protected function setUp(): void
   {
     parent::setUp();
     $this->container = self::getContainer();
-  }
-
-  protected function tearDown(): void
-  {
-    // Clean temp dir
-    if ($this->projectDir && is_dir($this->projectDir)) {
-      $it = new \RecursiveIteratorIterator(
-        new \RecursiveDirectoryIterator($this->projectDir, \FilesystemIterator::SKIP_DOTS),
-        \RecursiveIteratorIterator::CHILD_FIRST
-      );
-      foreach ($it as $f) {
-        $f->isDir() ? @rmdir($f->getPathname()) : @unlink($f->getPathname());
-      }
-      @rmdir($this->projectDir);
-    }
-    parent::tearDown();
   }
 
   /**
