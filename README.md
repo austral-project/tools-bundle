@@ -2,9 +2,9 @@
 
 [![Version](https://img.shields.io/packagist/v/austral/tools-bundle?label=version)](https://packagist.org/packages/austral/tools-bundle)
 [![CI](https://github.com/austral-project/tools-bundle/actions/workflows/ci.yml/badge.svg?branch=4.x)](https://github.com/austral-project/tools-bundle/actions/workflows/ci.yml)
-[![PHP](https://img.shields.io/packagist/dependency-v/austral/tools-bundle/php)](https://packagist.org/packages/austral/tools-bundle)
+[![PHP](https://img.shields.io/packagist/dependency-v/austral/tools-bundle/php?version=4.x-dev)](https://packagist.org/packages/austral/tools-bundle)
 [![Symfony](https://img.shields.io/badge/symfony-7.4-black)](https://symfony.com/releases/7.4)
-[![License](https://img.shields.io/packagist/l/austral/tools-bundle)](LICENSE)
+[![License](https://img.shields.io/github/license/austral-project/tools-bundle)](LICENSE)
 
 Austral Tools function and Abstract Class squelette
 
