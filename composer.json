@@ -16,7 +16,7 @@
         }
     ],
     "require": {
-        "php": ">=8.2 <9.0",
+        "php": ">=8.4 <9.0",
         "ext-fileinfo": "*",
         "adbario/php-dot-notation": "^3.3.0",
         "austral/contracts": "^4.0",
@@ -30,7 +30,6 @@
         "symfony/filesystem": "^7.4",
         "symfony/framework-bundle": "^7.4",
         "symfony/http-kernel": "^7.4",
-        "symfony/polyfill-php84": "^1.31",
         "symfony/process": "^7.4",
         "symfony/serializer": "^7.4",
         "symfony/string": "^7.4",
