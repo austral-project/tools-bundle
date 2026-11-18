@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the Austral Tools Bundle package.
  *
@@ -15,7 +16,9 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
 
 /**
  * Austral Tools Configuration.
+ *
  * @author Matthieu Beurel <matthieu@austral.dev>
+ *
  * @final
  */
 class Configuration implements ConfigurationInterface

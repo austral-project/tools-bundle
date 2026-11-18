@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the Austral Tools Bundle package.
  *
@@ -16,7 +17,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class ServicesStatusCheckerTest extends KernelTestCase
 {
-
   /** @var ContainerInterface|null */
   private ?ContainerInterface $container = null;
 
@@ -35,13 +35,15 @@ class ServicesStatusCheckerTest extends KernelTestCase
    */
   private function createSut(): ServicesStatusChecker
   {
-    if($this->container instanceof ContainerInterface){
+    if ($this->container instanceof ContainerInterface)
+    {
       $servicesStatusChecker = $this->container->get(ServicesStatusChecker::class);
-      if($servicesStatusChecker instanceof ServicesStatusChecker) {
+      if ($servicesStatusChecker instanceof ServicesStatusChecker)
+      {
         return $servicesStatusChecker;
       }
     }
-    throw new \RuntimeException("Container is not initialized");
+    throw new \RuntimeException('Container is not initialized');
   }
 
   /**
@@ -51,26 +53,29 @@ class ServicesStatusCheckerTest extends KernelTestCase
    */
   private function getServices(): array
   {
-    if($this->container instanceof ContainerInterface){
-      $services = $this->container->getParameter("austral.tools.services");
+    if ($this->container instanceof ContainerInterface)
+    {
+      $services = $this->container->getParameter('austral.tools.services');
+
       return is_array($services) ? $services : [];
     }
-    throw new \RuntimeException("Container is not initialized");
+    throw new \RuntimeException('Container is not initialized');
   }
 
   /**
    * testCreateStatusByService
    *
    * @return void
+   *
    * @throws \ReflectionException
    */
   public function testCreateStatusByService(): void
   {
     $sut = $this->createSut();
     $service = [
-      'name'    => 'queue:worker',
+      'name' => 'queue:worker',
       'command' => 'php bin/console messenger:consume',
-      'status'   => "run",
+      'status' => 'run',
     ];
 
     // Access protected method via Reflection
@@ -81,7 +86,7 @@ class ServicesStatusCheckerTest extends KernelTestCase
     $this->assertIsArray($result);
     $this->assertSame('queue:worker', $result['name']);
     $this->assertSame('php bin/console messenger:consume', $result['command']);
-    $this->assertSame("run", $result['status']);
+    $this->assertSame('run', $result['status']);
   }
 
   /**
@@ -102,16 +107,18 @@ class ServicesStatusCheckerTest extends KernelTestCase
     $services = $this->getServices();
     $this->assertCount(count($services), $readStatus);
 
-    foreach ($services as $serviceValues) {
-      $this->assertIsArray($readStatus[$serviceValues["command"]]);
-      foreach($serviceValues as $key => $value) {
-        if($key === "status")
+    foreach ($services as $serviceValues)
+    {
+      $this->assertIsArray($readStatus[$serviceValues['command']]);
+      foreach ($serviceValues as $key => $value)
+      {
+        if ('status' === $key)
         {
-          $this->assertSame("run", $readStatus[$serviceValues["command"]][$key]);
+          $this->assertSame('run', $readStatus[$serviceValues['command']][$key]);
         }
         else
         {
-          $this->assertSame($value, $readStatus[$serviceValues["command"]][$key]);
+          $this->assertSame($value, $readStatus[$serviceValues['command']][$key]);
         }
       }
     }
@@ -127,7 +134,8 @@ class ServicesStatusCheckerTest extends KernelTestCase
     $result = $sut->write('run');
     $ref = new \ReflectionClass($sut);
 
-    if ($ref->hasMethod('createDefaultServicesStatus')) {
+    if ($ref->hasMethod('createDefaultServicesStatus'))
+    {
       $m = $ref->getMethod('createDefaultServicesStatus');
       $default = $m->invoke($sut);
 
@@ -137,8 +145,10 @@ class ServicesStatusCheckerTest extends KernelTestCase
       $this->assertArrayHasKey('update', $default);
       $this->assertArrayHasKey('refresh_delay', $default);
       $this->assertArrayHasKey('services', $default);
-      $this->assertIsArray($default["services"]);
-    } else {
+      $this->assertIsArray($default['services']);
+    }
+    else
+    {
       $this->markTestSkipped('createDefaultServicesStatus() not present in class.');
     }
   }

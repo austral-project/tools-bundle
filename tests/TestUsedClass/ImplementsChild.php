@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the Austral Tools Bundle package.
  *
@@ -8,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
-
 namespace Austral\ToolsBundle\Tests\TestUsedClass;
-class ImplementsChild implements MyInterface {}
+
+class ImplementsChild implements MyInterface
+{
+}

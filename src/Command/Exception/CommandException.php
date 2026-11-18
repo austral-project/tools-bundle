@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the Austral Tools Bundle package.
  *
@@ -19,5 +20,4 @@ namespace Austral\ToolsBundle\Command\Exception;
  */
 class CommandException extends \Exception
 {
-
 }

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the Austral Tools Bundle package.
  *
@@ -30,14 +31,16 @@ class AustralToolsTest extends TestCase
    * setUp
    *
    * @return void
+   *
    * @throws RandomException
    */
   protected function setUp(): void
   {
     parent::setUp();
-    $this->tmpDir = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'austral_tools_tests_' . bin2hex(random_bytes(4));
-    if (!is_dir($this->tmpDir)) {
-      mkdir($this->tmpDir, 0777, true);
+    $this->tmpDir = sys_get_temp_dir().DIRECTORY_SEPARATOR.'austral_tools_tests_'.bin2hex(random_bytes(4));
+    if (!is_dir($this->tmpDir))
+    {
+      mkdir($this->tmpDir, 0o777, true);
     }
     // Force APP_DEBUG to true by default for dump-related tests
     $_SERVER['APP_DEBUG'] = 1;
@@ -52,12 +55,14 @@ class AustralToolsTest extends TestCase
   protected function tearDown(): void
   {
     // Clean up temp directory
-    if ($this->tmpDir && is_dir($this->tmpDir)) {
+    if ($this->tmpDir && is_dir($this->tmpDir))
+    {
       $files = new \RecursiveIteratorIterator(
         new \RecursiveDirectoryIterator($this->tmpDir, \FilesystemIterator::SKIP_DOTS),
         \RecursiveIteratorIterator::CHILD_FIRST
       );
-      foreach ($files as $fileinfo) {
+      foreach ($files as $fileinfo)
+      {
         $fileinfo->isDir() ? rmdir($fileinfo->getPathname()) : @unlink($fileinfo->getPathname());
       }
       @rmdir($this->tmpDir);
@@ -136,12 +141,24 @@ class AustralToolsTest extends TestCase
   {
     $obj = new class {
       private string $name = 'Alice';
-      public function getName(): string { return $this->name; }
+
+      public function getName(): string
+      {
+        return $this->name;
+      }
+
       // Simulates a "translate current" getter
-      public function getTranslateCurrent(): object { return new class {
-        private string $title = 'Bonjour';
-        public function getTitle(): string { return $this->title; }
-      }; }
+      public function getTranslateCurrent(): object
+      {
+        return new class {
+          private string $title = 'Bonjour';
+
+          public function getTitle(): string
+          {
+            return $this->title;
+          }
+        };
+      }
     };
 
     // Lookup via getName()
@@ -186,8 +203,8 @@ class AustralToolsTest extends TestCase
    */
   public function testFirstAndLast(): void
   {
-    $this->assertSame(1, AustralTools::first([1,2,3]));
-    $this->assertSame(3, AustralTools::last([1,2,3]));
+    $this->assertSame(1, AustralTools::first([1, 2, 3]));
+    $this->assertSame(3, AustralTools::last([1, 2, 3]));
     $this->assertSame('def', AustralTools::first([], 'def'));
     $this->assertSame('def', AustralTools::last([], 'def'));
   }
@@ -210,6 +227,7 @@ class AustralToolsTest extends TestCase
    * testRandomLettersOnly
    *
    * @return void
+   *
    * @throws RandomException
    */
   public function testRandomLettersOnly(): void
@@ -223,6 +241,7 @@ class AustralToolsTest extends TestCase
    * testRandomNumbersOnly
    *
    * @return void
+   *
    * @throws RandomException
    */
   public function testRandomNumbersOnly(): void
@@ -236,6 +255,7 @@ class AustralToolsTest extends TestCase
    * testRandomInvalidReturnsEmpty
    *
    * @return void
+   *
    * @throws RandomException
    */
   public function testRandomInvalidReturnsEmpty(): void
@@ -291,7 +311,7 @@ class AustralToolsTest extends TestCase
   {
     $this->assertSame('getFirstName', AustralTools::createGetterFunction('first_name'));
     $this->assertSame('setFirstName', AustralTools::createSetterFunction('first-name'));
-    $this->assertSame('getUserIdX',   AustralTools::createFunction('user_id', 'get', 'X'));
+    $this->assertSame('getUserIdX', AustralTools::createFunction('user_id', 'get', 'X'));
   }
 
   /**
@@ -312,7 +332,8 @@ class AustralToolsTest extends TestCase
    */
   public function testJoin(): void
   {
-    if (DIRECTORY_SEPARATOR !== '/') {
+    if (DIRECTORY_SEPARATOR !== '/')
+    {
       $this->markTestSkipped('join() will exit if not on UNIX.');
     }
     $this->assertSame('/var/www/html', AustralTools::join('/var/', '/www//', 'html/'));
@@ -332,7 +353,7 @@ class AustralToolsTest extends TestCase
   {
     $this->assertSame('1 o', AustralTools::humanizeSize(1));
     $this->assertSame('1 Ko', AustralTools::humanizeSize(1024, null, 0));
-    $this->assertSame('2 Ko', AustralTools::humanizeSize(2048, "Ko", 0));
+    $this->assertSame('2 Ko', AustralTools::humanizeSize(2048, 'Ko', 0));
     $this->assertSame(1024, AustralTools::unHumanizeSize('1k'));
     $this->assertSame(1024 * 1024, AustralTools::unHumanizeSize('1M'));
     $this->assertSame(1024 * 1024 * 1024, AustralTools::unHumanizeSize('1G'));
@@ -345,13 +366,13 @@ class AustralToolsTest extends TestCase
    */
   public function testMimeTypeAndExtension(): void
   {
-    $file = $this->tmpDir . DIRECTORY_SEPARATOR . 'sample.txt';
-    file_put_contents($file, "hello");
+    $file = $this->tmpDir.DIRECTORY_SEPARATOR.'sample.txt';
+    file_put_contents($file, 'hello');
     $ext = AustralTools::extension($file);
     $this->assertSame('txt', $ext);
 
     $mime = AustralTools::mimeType($file);
-    $this->assertTrue($mime === 'text/plain' || $mime === null);
+    $this->assertTrue('text/plain' === $mime || null === $mime);
   }
 
   /**
@@ -364,7 +385,7 @@ class AustralToolsTest extends TestCase
     // Generate a 1x1 PNG
     $pngBase64 = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4nGNgYAAAAAMAASsJTYQAAAAASUVORK5CYII=';
     $png = base64_decode($pngBase64);
-    $path = $this->tmpDir . DIRECTORY_SEPARATOR . 'one.png';
+    $path = $this->tmpDir.DIRECTORY_SEPARATOR.'one.png';
     file_put_contents($path, $png);
 
     $this->assertTrue(AustralTools::isImage($path));
@@ -478,7 +499,7 @@ class AustralToolsTest extends TestCase
   public function testFlattenArray(): void
   {
     $nested = [
-      'a' => ['b' => 1, 'c' => [ 'd' => 2 ]],
+      'a' => ['b' => 1, 'c' => ['d' => 2]],
       'e' => 3,
     ];
     $flat = AustralTools::flattenArray('.', $nested);
@@ -495,14 +516,14 @@ class AustralToolsTest extends TestCase
   public function testArrayByFlatten(): void
   {
     $flat = [
-      'a.b'   => 1,
+      'a.b' => 1,
       'a.c.d' => 2,
-      'e'     => 3,
+      'e' => 3,
     ];
     $nested = AustralTools::arrayByFlatten($flat, '.');
-    $this->assertSame(1, $nested['a']['b']["element"]);
-    $this->assertSame(2, $nested['a']['c']['d']["element"]);
-    $this->assertSame(3, $nested['e']["element"]);
+    $this->assertSame(1, $nested['a']['b']['element']);
+    $this->assertSame(2, $nested['a']['c']['d']['element']);
+    $this->assertSame(3, $nested['e']['element']);
   }
 
   /**
@@ -519,7 +540,7 @@ class AustralToolsTest extends TestCase
     $this->assertStringContainsString("k1\nv1\n", $text);
 
     $html = AustralTools::arrayToString($arr, true);
-    $this->assertStringContainsString("<ul", $html);
+    $this->assertStringContainsString('<ul', $html);
     $this->assertStringContainsString("class='austral-title-key'>title</span>", $html);
   }
 

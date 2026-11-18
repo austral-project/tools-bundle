@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the Austral Tools Bundle package.
  *
@@ -9,4 +10,7 @@
  */
 
 namespace Austral\ToolsBundle\Tests\TestUsedClass;
-trait MyTrait {}
+
+trait MyTrait
+{
+}

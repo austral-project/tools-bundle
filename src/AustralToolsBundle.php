@@ -1,24 +1,26 @@
 <?php
+
 /*
- * This file is part of the Austral Tools Bundle package.
+ * This file is part of the App package.
  *
- * (c) Austral <support@austral.dev>
+ * (c) Yipikai <support@yipikai.studio>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
 
 namespace Austral\ToolsBundle;
+
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 /**
  * Austral Tools Bundle.
+ *
  * @author Matthieu Beurel <matthieu@austral.dev>
  */
 class AustralToolsBundle extends Bundle
 {
-
   /**
    * @param ContainerBuilder $container
    */
@@ -26,6 +28,4 @@ class AustralToolsBundle extends Bundle
   {
     parent::build($container);
   }
-  
-  
 }

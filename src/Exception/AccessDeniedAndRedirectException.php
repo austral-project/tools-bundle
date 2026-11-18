@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the Austral Tools Bundle package.
  *
@@ -12,12 +13,13 @@ namespace Austral\ToolsBundle\Exception;
 
 /**
  * Austral AccessDeniedAndRedirectException.
+ *
  * @author Matthieu Beurel <matthieu@austral.dev>
+ *
  * @final
  */
 class AccessDeniedAndRedirectException extends \RuntimeException
 {
-
   /**
    * @var string|null
    */
@@ -31,11 +33,11 @@ class AccessDeniedAndRedirectException extends \RuntimeException
   /**
    * AccessDeniedAndRedirectException constructor
    *
-   * @param int $statusCode
-   * @param string $message
-   * @param string|null $routeRedirect
+   * @param int             $statusCode
+   * @param string          $message
+   * @param string|null     $routeRedirect
    * @param \Exception|null $previous
-   * @param int $code
+   * @param int             $code
    */
   public function __construct(int $statusCode, string $message, ?string $routeRedirect = null, ?\Exception $previous = null, int $code = 0)
   {

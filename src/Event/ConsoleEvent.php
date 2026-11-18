@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the Austral Tools Bundle package.
  *
@@ -12,6 +13,6 @@ namespace Austral\Tools\Event;
 
 class ConsoleEvent
 {
-  const EVENT_CONSOLE_EXECUTE_BEFORE = "austral.event.console.execute.before";
-  const EVENT_CONSOLE_EXECUTE_AFTER = "austral.event.console.execute.after";
+  public const EVENT_CONSOLE_EXECUTE_BEFORE = 'austral.event.console.execute.before';
+  public const EVENT_CONSOLE_EXECUTE_AFTER = 'austral.event.console.execute.after';
 }

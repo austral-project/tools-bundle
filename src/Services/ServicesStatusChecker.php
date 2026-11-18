@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the Austral Tools Bundle package.
  *
@@ -17,11 +18,11 @@ use Symfony\Component\Process\Process;
 
 /**
  * Austral Services status checker.
+ *
  * @author Matthieu Beurel <matthieu@austral.dev>
  */
-Class ServicesStatusChecker
+class ServicesStatusChecker
 {
-
   /**
    * @var ContainerInterface
    */
@@ -45,20 +46,23 @@ Class ServicesStatusChecker
   /**
    * ServicesStatusChecker constructor
    *
-   * @param ContainerInterface $container
-   * @param string $projectDir
+   * @param ContainerInterface   $container
+   * @param string               $projectDir
    * @param array<string, mixed> $services
    */
   public function __construct(
-    #[Autowire(service: 'service_container')] ContainerInterface $container,
-    #[Autowire('%kernel.project_dir%')] string $projectDir,
-    #[Autowire('%austral.tools.services%')] array $services
+    #[Autowire(service: 'service_container')]
+    ContainerInterface $container,
+    #[Autowire('%kernel.project_dir%')]
+    string $projectDir,
+    #[Autowire('%austral.tools.services%')]
+    array $services
   ) {
     $this->container = $container;
     $this->pathFileStatus = AustralTools::join(
       $projectDir,
-      "var",
-      "services.status"
+      'var',
+      'services.status'
     );
     $this->services = $services;
   }
@@ -79,26 +83,32 @@ Class ServicesStatusChecker
   public function write(?string $forceStatus = null): static
   {
     $servicesStatusChecker = $this->createDefaultServicesStatus();
-    foreach($this->services as $key => $service)
+    foreach ($this->services as $key => $service)
     {
-      if($forceStatus) {
+      if ($forceStatus)
+      {
         $status = $forceStatus;
       }
-      else {
-        $status = "stop";
+      else
+      {
+        $status = 'stop';
         $command = "ps aux | grep -e \"{$service['command']}\" | grep -v grep | awk '{ print $2 }'";
         $process = Process::fromShellCommandline($command);
-        $process->run(function ($type) use(&$status) {
-          if (Process::ERR === $type) {
-            $status = "error";
-          } else {
-            $status = "run";
+        $process->run(function ($type) use (&$status) {
+          if (Process::ERR === $type)
+          {
+            $status = 'error';
+          }
+          else
+          {
+            $status = 'run';
           }
         });
       }
-      $servicesStatusChecker["services"][$key] = $this->createStatusByService($service, $status);
+      $servicesStatusChecker['services'][$key] = $this->createStatusByService($service, $status);
     }
     $this->save($servicesStatusChecker);
+
     return $this;
   }
 
@@ -108,14 +118,16 @@ Class ServicesStatusChecker
   protected function createDefaultServicesStatus(): array
   {
     $servicesStatus = [];
-    $servicesStatus["update"] = date("Y-m-d H:i:s");
+    $servicesStatus['update'] = date('Y-m-d H:i:s');
     $servicesStatus['refresh_delay'] = $this->sleep;
     $servicesStatus['services'] = [];
+
     return $servicesStatus;
   }
 
   /**
    * @return array<string, mixed>
+   *
    * @throws \Exception
    */
   public function read(): array
@@ -127,47 +139,52 @@ Class ServicesStatusChecker
    * @param string $command
    *
    * @return bool
+   *
    * @throws \Exception
    */
   public function getServiceIsRunByCommand(string $command): bool
   {
     $service = AustralTools::valueByKey($this->getServicesByStatusFinal(), $command, []);
-    return AustralTools::valueByKey($service, "status", "stop") === "run";
+
+    return 'run' === AustralTools::valueByKey($service, 'status', 'stop');
   }
 
   /**
    * @return array<string, mixed>
+   *
    * @throws \Exception
    */
   protected function getServicesByStatusFinal(): array
   {
     $servicesByStatus = $this->getFileContent();
-    $refreshDelay = AustralTools::valueByKey($servicesByStatus, "refresh_delay", $this->sleep);
+    $refreshDelay = AustralTools::valueByKey($servicesByStatus, 'refresh_delay', $this->sleep);
 
-    $commandStatus = "stop";
-    if($updates = AustralTools::valueByKey($servicesByStatus, "update"))
+    $commandStatus = 'stop';
+    if ($updates = AustralTools::valueByKey($servicesByStatus, 'update'))
     {
       $updatesDate = new \DateTime($updates);
       $dateNow = new \DateTime();
-      $dateNow->sub(new \DateInterval('PT'.($refreshDelay*2).'S'));
-      if($updatesDate->getTimestamp() >= $dateNow->getTimestamp())
+      $dateNow->sub(new \DateInterval('PT'.($refreshDelay * 2).'S'));
+      if ($updatesDate->getTimestamp() >= $dateNow->getTimestamp())
       {
-        $commandStatus = "run";
+        $commandStatus = 'run';
       }
     }
 
     $servicesByStatusFinal = [];
-    foreach($this->services as $key => $service)
+    foreach ($this->services as $key => $service)
     {
-      $statusFinal = "stop";
-      if($serviceByStatus = AustralTools::valueByKey(AustralTools::valueByKey($servicesByStatus, 'services', []), $key, []))
+      $statusFinal = 'stop';
+      if ($serviceByStatus = AustralTools::valueByKey(AustralTools::valueByKey($servicesByStatus, 'services', []), $key, []))
       {
-        if($commandStatus == "run") {
-          $statusFinal = $serviceByStatus["status"];
+        if ('run' == $commandStatus)
+        {
+          $statusFinal = $serviceByStatus['status'];
         }
       }
-      $servicesByStatusFinal[$service["command"]] = $this->createStatusByService($service, $statusFinal);
+      $servicesByStatusFinal[$service['command']] = $this->createStatusByService($service, $statusFinal);
     }
+
     return $servicesByStatusFinal;
   }
 
@@ -176,12 +193,14 @@ Class ServicesStatusChecker
    */
   protected function getFileContent(): array
   {
-    if(file_exists($this->pathFileStatus))
+    if (file_exists($this->pathFileStatus))
     {
       $fileContent = file_get_contents($this->pathFileStatus);
-      $jsonEncode = json_decode(is_string($fileContent) ? $fileContent : "{}", true);
-      return  is_array($jsonEncode) ? $jsonEncode : [];
+      $jsonEncode = json_decode(is_string($fileContent) ? $fileContent : '{}', true);
+
+      return is_array($jsonEncode) ? $jsonEncode : [];
     }
+
     return [];
   }
 
@@ -193,25 +212,26 @@ Class ServicesStatusChecker
   protected function save(array $servicesStatus): static
   {
     $directory = \dirname($this->pathFileStatus);
-    if(!is_dir($directory) && !mkdir($directory, 0775, true) && !is_dir($directory))
+    if (!is_dir($directory) && !mkdir($directory, 0o775, true) && !is_dir($directory))
     {
       throw new \RuntimeException(sprintf('Unable to create the directory "%s".', $directory));
     }
     file_put_contents($this->pathFileStatus, json_encode($servicesStatus));
+
     return $this;
   }
 
   /**
    * @param array<string, mixed> $service
-   * @param string $status
+   * @param string               $status
    *
    * @return array<string, mixed>
    */
   protected function createStatusByService(array $service, string $status): array
   {
     $serviceStatus = $service;
-    $serviceStatus["status"] = $status;
+    $serviceStatus['status'] = $status;
+
     return $serviceStatus;
   }
-
 }

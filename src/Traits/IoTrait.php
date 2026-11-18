@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the Austral Tools Bundle package.
  *
@@ -7,6 +8,7 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
 namespace Austral\ToolsBundle\Traits;
 
 use Symfony\Component\Console\Helper\ProgressBar;
@@ -15,20 +17,19 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
  * Austral Io Trait.
+ *
  * @author Matthieu Beurel <matthieu@austral.dev>
  */
 trait IoTrait
 {
-
-  const MESSAGE_TYPE_SECTION = "section";
-  const MESSAGE_TYPE_TITLE = "title";
-  const MESSAGE_TYPE_TEXT = "text";
-  const MESSAGE_TYPE_NOTE = "note";
-  const MESSAGE_TYPE_COMMENT = "comment";
-  const MESSAGE_TYPE_CAUTION = "caution";
-  const MESSAGE_TYPE_ERROR = "error";
-  const MESSAGE_TYPE_SUCCESS = "success";
-
+  public const MESSAGE_TYPE_SECTION = 'section';
+  public const MESSAGE_TYPE_TITLE = 'title';
+  public const MESSAGE_TYPE_TEXT = 'text';
+  public const MESSAGE_TYPE_NOTE = 'note';
+  public const MESSAGE_TYPE_COMMENT = 'comment';
+  public const MESSAGE_TYPE_CAUTION = 'caution';
+  public const MESSAGE_TYPE_ERROR = 'error';
+  public const MESSAGE_TYPE_SUCCESS = 'success';
 
   /**
    * @var SymfonyStyle|null
@@ -48,6 +49,7 @@ trait IoTrait
   public function setIo(SymfonyStyle $io): static
   {
     $this->io = $io;
+
     return $this;
   }
 
@@ -59,48 +61,50 @@ trait IoTrait
   public function setOutput(OutputInterface $output): static
   {
     $this->output = $output;
+
     return $this;
   }
 
   /**
-   * @param string $message
+   * @param string      $message
    * @param string|null $type
-   * @param bool $viewMessage
+   * @param bool        $viewMessage
    *
    * @return $this
    */
   protected function viewMessage(string $message, ?string $type = self::MESSAGE_TYPE_SECTION, bool $viewMessage = true): static
   {
-    if($this->io && $viewMessage)
+    if ($this->io && $viewMessage)
     {
-      switch($type)
+      switch ($type)
       {
         case self::MESSAGE_TYPE_SECTION:
           $this->io->section($message);
-        break;
+          break;
         case self::MESSAGE_TYPE_TITLE:
           $this->io->title($message);
-        break;
+          break;
         case self::MESSAGE_TYPE_TEXT:
           $this->io->text($message);
-        break;
+          break;
         case self::MESSAGE_TYPE_NOTE:
           $this->io->note($message);
-        break;
-        case  self::MESSAGE_TYPE_COMMENT:
+          break;
+        case self::MESSAGE_TYPE_COMMENT:
           $this->io->comment($message);
-        break;
-        case  self::MESSAGE_TYPE_CAUTION:
+          break;
+        case self::MESSAGE_TYPE_CAUTION:
           $this->io->caution($message);
-        break;
-        case  self::MESSAGE_TYPE_ERROR:
+          break;
+        case self::MESSAGE_TYPE_ERROR:
           $this->io->error($message);
-        break;
-        case  self::MESSAGE_TYPE_SUCCESS:
+          break;
+        case self::MESSAGE_TYPE_SUCCESS:
           $this->io->success($message);
-        break;
+          break;
       }
     }
+
     return $this;
   }
 
@@ -112,9 +116,9 @@ trait IoTrait
   protected function newLine(int $count = 1): static
   {
     $this->io?->newLine($count);
+
     return $this;
   }
-
 
   /**
    * @var array<string, ProgressBar>
@@ -126,44 +130,48 @@ trait IoTrait
    *
    * @return ProgressBar|null
    */
-  public function getProgressBar(string $name = "default"): ?ProgressBar
+  public function getProgressBar(string $name = 'default'): ?ProgressBar
   {
     return array_key_exists($name, $this->progressBars) ? $this->progressBars[$name] : null;
   }
 
   /**
    * @param string $name
-   * @param int $progressBarValue
+   * @param int    $progressBarValue
    * @param string $format
    *
    * @return $this
    */
-  protected function progressStart(string $name = "default", int $progressBarValue = 100, string $format = " %current%/%max% -- %message%"): static
+  protected function progressStart(string $name = 'default', int $progressBarValue = 100, string $format = ' %current%/%max% -- %message%'): static
   {
-    if($this->output) {
+    if ($this->output)
+    {
       ProgressBar::setFormatDefinition('austral', $format);
       $this->progressBars[$name] = new ProgressBar($this->output, $progressBarValue);
       $this->progressBars[$name]->setFormat('austral');
     }
+
     return $this;
   }
 
   /**
-   * @param string $name
-   * @param int $step
+   * @param string      $name
+   * @param int         $step
    * @param string|null $message
    *
    * @return $this
    */
-  protected function progressAdvance(string $name = "default", int $step = 1, ?string $message = null): static
+  protected function progressAdvance(string $name = 'default', int $step = 1, ?string $message = null): static
   {
-    if(($progressBar = $this->getProgressBar($name)) instanceof ProgressBar)
+    if (($progressBar = $this->getProgressBar($name)) instanceof ProgressBar)
     {
-      if($message) {
+      if ($message)
+      {
         $progressBar->setMessage($message);
       }
       $progressBar->advance($step);
     }
+
     return $this;
   }
 
@@ -172,14 +180,14 @@ trait IoTrait
    *
    * @return $this
    */
-  protected function progressFinish(string $name = "default"): static
+  protected function progressFinish(string $name = 'default'): static
   {
-    if(($progressBar = $this->getProgressBar($name)) instanceof ProgressBar)
+    if (($progressBar = $this->getProgressBar($name)) instanceof ProgressBar)
     {
       $progressBar->finish();
     }
     $this->newLine(2);
+
     return $this;
   }
-
 }

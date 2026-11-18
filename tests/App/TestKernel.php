@@ -24,39 +24,39 @@ use Symfony\Component\HttpKernel\Kernel;
  */
 final class TestKernel extends Kernel
 {
-    use MicroKernelTrait;
+  use MicroKernelTrait;
 
-    public function registerBundles(): iterable
-    {
-        return [
-            new FrameworkBundle(),
-            new AustralToolsBundle(),
-        ];
-    }
+  public function registerBundles(): iterable
+  {
+    return [
+      new FrameworkBundle(),
+      new AustralToolsBundle(),
+    ];
+  }
 
-    public function getProjectDir(): string
-    {
-        return \dirname(__DIR__, 2);
-    }
+  public function getProjectDir(): string
+  {
+    return \dirname(__DIR__, 2);
+  }
 
-    public function getCacheDir(): string
-    {
-        return sys_get_temp_dir().'/austral-tools-bundle/cache/'.$this->environment;
-    }
+  public function getCacheDir(): string
+  {
+    return sys_get_temp_dir().'/austral-tools-bundle/cache/'.$this->environment;
+  }
 
-    public function getLogDir(): string
-    {
-        return sys_get_temp_dir().'/austral-tools-bundle/log';
-    }
+  public function getLogDir(): string
+  {
+    return sys_get_temp_dir().'/austral-tools-bundle/log';
+  }
 
-    protected function configureContainer(ContainerConfigurator $container): void
-    {
-        $container->extension('framework', [
-            'test' => true,
-            'secret' => 'test',
-            'http_method_override' => false,
-            'handle_all_throwables' => true,
-            'php_errors' => ['log' => true],
-        ]);
-    }
+  protected function configureContainer(ContainerConfigurator $container): void
+  {
+    $container->extension('framework', [
+      'test' => true,
+      'secret' => 'test',
+      'http_method_override' => false,
+      'handle_all_throwables' => true,
+      'php_errors' => ['log' => true],
+    ]);
+  }
 }

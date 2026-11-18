@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the Austral Tools Bundle package.
  *
@@ -7,11 +8,10 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
- 
+
 namespace Austral\ToolsBundle\TwigExtension;
 
 use Austral\ToolsBundle\AustralTools;
-
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Twig\Attribute\AsTwigFilter;
@@ -21,12 +21,13 @@ use Twig\Environment;
 
 /**
  * Austral Tools Twig Extension.
+ *
  * @author Matthieu Beurel <matthieu@austral.dev>
+ *
  * @final
  */
 class ToolsTwig
 {
-
   /**
    * @var string
    */
@@ -38,7 +39,8 @@ class ToolsTwig
    * @param string $kernelProjectDir
    */
   public function __construct(
-    #[Autowire("%kernel.project_dir%")] string $kernelProjectDir
+    #[Autowire('%kernel.project_dir%')]
+    string $kernelProjectDir
   ) {
     $this->kernelProjectDir = $kernelProjectDir;
   }
@@ -95,9 +97,9 @@ class ToolsTwig
   /**
    * Returns the value of an array if the key exists
    *
-   * @param array<string|int, mixed>|object $array $array
-   * @param string|int $key     key to get
-   * @param mixed $default      default
+   * @param array<string|int, mixed>|object $array   $array
+   * @param string|int                      $key     key to get
+   * @param mixed                           $default default
    *
    * @return mixed
    */
@@ -110,8 +112,8 @@ class ToolsTwig
 
   /**
    * @param array<string|int, mixed> $array
-   * @param bool $html
-   * @param int $lvl
+   * @param bool                     $html
+   * @param int                      $lvl
    *
    * @return string
    */
@@ -124,6 +126,7 @@ class ToolsTwig
 
   /**
    * @return string
+   *
    * @throws \Exception
    */
   #[AsTwigFunction('uuid')]
@@ -133,9 +136,9 @@ class ToolsTwig
   }
 
   /**
-   * @param array<string, mixed> $array
+   * @param array<string, mixed>        $array
    * @param array<string, mixed>|string $keys
-   * @param int $num
+   * @param int                         $num
    *
    * @return array<string, mixed>
    */
@@ -148,8 +151,8 @@ class ToolsTwig
 
   /**
    * @param array<int|string, mixed> $array
-   * @param int|string|null $key
-   * @param mixed|null $values
+   * @param int|string|null          $key
+   * @param mixed|null               $values
    *
    * @return array<int|string, mixed>
    */
@@ -157,6 +160,7 @@ class ToolsTwig
   public function addInArray(array $array, int|string|null $key = null, mixed $values = null): array
   {
     $array[$key] = $values;
+
     return $array;
   }
 
@@ -170,12 +174,13 @@ class ToolsTwig
   public function ksort(array $array): array
   {
     ksort($array);
+
     return $array;
   }
 
   /**
    * @param Environment $twig
-   * @param string $name
+   * @param string      $name
    *
    * @return bool
    */
@@ -184,20 +189,22 @@ class ToolsTwig
   #[AsTwigFunction('twig_filter_exists', needsEnvironment: true)]
   public function twigFilterExists(Environment $twig, string $name): bool
   {
-    return (bool)$twig->getFilter($name);
+    return (bool) $twig->getFilter($name);
   }
 
   /**
-   * @param \IteratorAggregate $var
+   * @param \IteratorAggregate  $var
    * @param object|class-string $instance
    *
    * @return bool
+   *
    * @throws \ReflectionException
    */
   #[AsTwigTest('instanceof')]
   public function isInstanceOf(\IteratorAggregate $var, object|string $instance): bool
   {
     $reflexionClass = new \ReflectionClass($instance);
+
     return $reflexionClass->isInstance($var);
   }
 
@@ -210,7 +217,8 @@ class ToolsTwig
   #[AsTwigFunction('asset_exist')]
   public function assetExist(string $assetPath): bool
   {
-    $realAssetPath = AustralTools::join($this->kernelProjectDir, "public", $assetPath);
+    $realAssetPath = AustralTools::join($this->kernelProjectDir, 'public', $assetPath);
+
     return $this->fileExist($realAssetPath);
   }
 
@@ -228,7 +236,7 @@ class ToolsTwig
 
   /**
    * @param string $filePath
-   * @param bool $humanize
+   * @param bool   $humanize
    *
    * @return false|int|string
    */
@@ -236,10 +244,11 @@ class ToolsTwig
   #[AsTwigFunction('file_size')]
   public function fileSize(string $filePath, bool $humanize = false): false|int|string
   {
-    if($this->fileExist($filePath))
+    if ($this->fileExist($filePath))
     {
       return $humanize ? AustralTools::humanizeSize($filePath) : filesize($filePath);
     }
+
     return 0;
   }
 
@@ -269,7 +278,7 @@ class ToolsTwig
 
   /**
    * @param string $filePath
-   * @param bool $returnArray
+   * @param bool   $returnArray
    *
    * @return array<string, int>|string
    */
@@ -285,18 +294,19 @@ class ToolsTwig
    *
    * @param string $value
    * @param string $tagName
+   *
    * @return string
    */
   #[AsTwigFilter('remove_multi_br')]
   #[AsTwigFunction('remove_multi_br')]
-  public function removeMultiBr(string $value, string $tagName = "p"): string
+  public function removeMultiBr(string $value, string $tagName = 'p'): string
   {
     $normalized = str_replace(["\n", "\r"], '', $value);
+
     return preg_replace(
       '#(<br\s*/?>){2,}#i',
       "</{$tagName}><{$tagName}>",
       $normalized
     ) ?? $normalized;
   }
-
 }

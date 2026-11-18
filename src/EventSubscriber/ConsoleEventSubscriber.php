@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the Austral Tools Bundle package.
  *
@@ -9,31 +10,28 @@
  */
 
 namespace Austral\Tools\EventSubscriber;
-use Austral\Tools\Event\ConsoleEvent;
 
+use Austral\Tools\Event\ConsoleEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class ConsoleEventSubscriber implements EventSubscriberInterface
 {
-
   /**
    * @return array<mixed>
    */
   public static function getSubscribedEvents(): array
   {
     return [
-      ConsoleEvent::EVENT_CONSOLE_EXECUTE_BEFORE  =>  ["before", 1024],
-      ConsoleEvent::EVENT_CONSOLE_EXECUTE_AFTER   =>  ["after", 1024],
+      ConsoleEvent::EVENT_CONSOLE_EXECUTE_BEFORE => ['before', 1024],
+      ConsoleEvent::EVENT_CONSOLE_EXECUTE_AFTER => ['after', 1024],
     ];
   }
 
   public function before(ConsoleEvent $consoleEvent): void
   {
-
   }
 
   public function after(ConsoleEvent $consoleEvent): void
   {
-
   }
 }
