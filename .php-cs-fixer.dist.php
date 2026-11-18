@@ -14,6 +14,9 @@ $finder = (new PhpCsFixer\Finder())
     ->ignoreVCS(true);
 
 return (new PhpCsFixer\Config())
+    // Austral code style: 2-space indentation (same as .editorconfig)
+    ->setIndent('  ')
+    ->setLineEnding("\n")
     ->setRiskyAllowed(true)
     ->setRules([
         '@Symfony' => true,

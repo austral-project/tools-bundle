@@ -190,7 +190,8 @@ abstract class Command extends BaseCommand
    */
   public function getSubscribedSignals(): array
   {
-    return [SIGINT, SIGTERM];
+    // The pcntl extension (and its SIGINT / SIGTERM constants) is optional
+    return \defined('SIGINT') ? [\constant('SIGINT'), \constant('SIGTERM')] : [];
   }
 
   /**

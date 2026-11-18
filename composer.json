@@ -17,20 +17,28 @@
     ],
     "require": {
         "php": ">=8.2 <9.0",
+        "ext-fileinfo": "*",
+        "adbario/php-dot-notation": "^3.3.0",
         "austral/contracts": "^4.0",
+        "gedmo/doctrine-extensions": "^v3.21",
+        "ramsey/uuid": "^4.9",
+        "symfony/config": "^7.4",
         "symfony/console": "^7.4",
+        "symfony/contracts": "^3.5",
+        "symfony/dependency-injection": "^7.4",
+        "symfony/event-dispatcher": "^7.4",
+        "symfony/filesystem": "^7.4",
         "symfony/framework-bundle": "^7.4",
+        "symfony/http-kernel": "^7.4",
+        "symfony/polyfill-php84": "^1.31",
         "symfony/process": "^7.4",
         "symfony/serializer": "^7.4",
         "symfony/string": "^7.4",
+        "symfony/var-dumper": "^7.4",
         "symfony/yaml": "^7.4",
-        "symfony/contracts": "^3.5",
-        "twig/twig": "^3.0",
         "twig/extra-bundle": "^3.0",
         "twig/string-extra": "^3.2",
-        "gedmo/doctrine-extensions": "^v3.21",
-        "ramsey/uuid": "^4.9",
-        "adbario/php-dot-notation": "^3.3.0"
+        "twig/twig": "^3.0"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.64",
@@ -43,7 +51,6 @@
         "symfony/debug-bundle": "^7.4",
         "symfony/phpunit-bridge": "^7.4",
         "symfony/stopwatch": "^7.4",
-        "symfony/var-dumper": "^7.4",
         "symfony/web-profiler-bundle": "^7.4"
     },
     "config": {
