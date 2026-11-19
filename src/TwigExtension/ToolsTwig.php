@@ -39,8 +39,7 @@ class ToolsTwig
    * @param string $kernelProjectDir
    */
   public function __construct(
-    #[Autowire('%kernel.project_dir%')]
-    string $kernelProjectDir
+    #[Autowire('%kernel.project_dir%')] string $kernelProjectDir
   ) {
     $this->kernelProjectDir = $kernelProjectDir;
   }

@@ -51,12 +51,9 @@ class ServicesStatusChecker
    * @param array<string, mixed> $services
    */
   public function __construct(
-    #[Autowire(service: 'service_container')]
-    ContainerInterface $container,
-    #[Autowire('%kernel.project_dir%')]
-    string $projectDir,
-    #[Autowire('%austral.tools.services%')]
-    array $services
+    #[Autowire(service: 'service_container')] ContainerInterface $container,
+    #[Autowire('%kernel.project_dir%')] string $projectDir,
+    #[Autowire('%austral.tools.services%')] array $services
   ) {
     $this->container = $container;
     $this->pathFileStatus = AustralTools::join(
