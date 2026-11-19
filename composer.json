@@ -24,7 +24,6 @@
         "ramsey/uuid": "^4.9",
         "symfony/config": "^7.4",
         "symfony/console": "^7.4",
-        "symfony/contracts": "^3.5",
         "symfony/dependency-injection": "^7.4",
         "symfony/event-dispatcher": "^7.4",
         "symfony/filesystem": "^7.4",

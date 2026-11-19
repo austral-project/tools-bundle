@@ -23,6 +23,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Removed
 
+- `symfony/contracts` dependency: not used by the bundle. As a meta-package, it replaced the individual `symfony/*-contracts` packages, which hid them from composer-require-checker in the bundles depending on tools-bundle.
+
 ## [3.1.1] - 2022-12-16
 
 - Add return execute command
