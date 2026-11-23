@@ -12,7 +12,6 @@
 namespace Austral\ToolsBundle\Services;
 
 use Austral\ToolsBundle\AustralTools;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Process\Process;
 
 /**
@@ -35,12 +34,10 @@ class ServicesStatusChecker
   /**
    * ServicesStatusChecker constructor
    *
-   * @param ContainerInterface   $container
    * @param string               $projectDir
    * @param array<string, mixed> $services
    */
   public function __construct(
-    protected ContainerInterface $container,
     string $projectDir,
     protected array $services
   ) {

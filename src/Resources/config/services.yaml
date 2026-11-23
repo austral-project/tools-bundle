@@ -1,7 +1,8 @@
 services:
   ##### Twig Extension
   Austral\ToolsBundle\TwigExtension\ToolsTwig:
-    arguments:    ["%kernel.project_dir%"]
+    arguments:
+      $kernelProjectDir:  "%kernel.project_dir%"
   twig.extension.tools:
     alias:        Austral\ToolsBundle\TwigExtension\ToolsTwig
 
@@ -15,8 +16,7 @@ services:
   ##### Service Status checker
   Austral\ToolsBundle\Services\ServicesStatusChecker:
     arguments:
-      - '@service_container'
-      - '%kernel.project_dir%'
-      - '%austral.tools.services%'
+      $projectDir:  '%kernel.project_dir%'
+      $services:    '%austral.tools.services%'
   austral.tools.status-checker:
     alias:        Austral\ToolsBundle\Services\ServicesStatusChecker
