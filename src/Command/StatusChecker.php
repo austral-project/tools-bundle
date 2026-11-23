@@ -55,9 +55,19 @@ class StatusChecker extends Command
   }
 
   /**
-   * @var ServicesStatusChecker|null
+   * StatusChecker constructor
+   *
+   * @param ServicesStatusChecker|null $servicesStatusChecker
+   * @param string|null                $name
+   * @param callable|null              $code
    */
-  protected ?ServicesStatusChecker $servicesStatusChecker = null;
+  public function __construct(
+    protected ?ServicesStatusChecker $servicesStatusChecker = null,
+    ?string $name = null,
+    ?callable $code = null
+  ) {
+    parent::__construct($name, $code);
+  }
 
   /**
    * @param InputInterface  $input
@@ -65,12 +75,10 @@ class StatusChecker extends Command
    */
   protected function executeCommand(InputInterface $input, OutputInterface $output): void
   {
-    $serviceStatusChecker = $this->container?->get('austral.tools.status-checker');
-    if (!$serviceStatusChecker instanceof ServicesStatusChecker)
+    if (!$this->servicesStatusChecker instanceof ServicesStatusChecker)
     {
       throw new \LogicException(sprintf("Service 'austral.tools.status-checker' must implement %s", ServicesStatusChecker::class));
     }
-    $this->servicesStatusChecker = $serviceStatusChecker;
     if ($input->getOption('service'))
     {
       $sleep = $input->getOption('sleep') ?: $this->servicesStatusChecker->getSleep();

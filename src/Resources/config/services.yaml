@@ -1,14 +1,9 @@
 services:
-  _defaults:
-    autowire:      true
-    autoconfigure: true
-    public:        true
-
   ##### Twig Extension
-  Austral\ToolsBundle\TwigExtension\ToolsTwig: ~
+  Austral\ToolsBundle\TwigExtension\ToolsTwig:
+    arguments:    ["%kernel.project_dir%"]
   twig.extension.tools:
     alias:        Austral\ToolsBundle\TwigExtension\ToolsTwig
-    public:       true
 
   ##### Debug
   Austral\ToolsBundle\Services\Debug:
@@ -16,17 +11,12 @@ services:
       - [ setDebugStopWatch, ['@?debug.stopwatch'] ]
   austral.tools.debug:
     alias:        Austral\ToolsBundle\Services\Debug
-    public:       true
 
   ##### Service Status checker
-  Austral\ToolsBundle\Services\ServicesStatusChecker: ~
+  Austral\ToolsBundle\Services\ServicesStatusChecker:
+    arguments:
+      - '@service_container'
+      - '%kernel.project_dir%'
+      - '%austral.tools.services%'
   austral.tools.status-checker:
     alias:        Austral\ToolsBundle\Services\ServicesStatusChecker
-    public:       true
-  austral.tools.services.status-checker:
-    alias:        Austral\ToolsBundle\Services\ServicesStatusChecker
-    public:       true
-    deprecated:
-      package:    'austral/tools-bundle'
-      version:    '4.0'
-      message:    'The "%alias_id%" service alias is deprecated, use "austral.tools.status-checker" instead.'

@@ -22,14 +22,14 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  */
 trait IoTrait
 {
-  public const MESSAGE_TYPE_SECTION = 'section';
-  public const MESSAGE_TYPE_TITLE = 'title';
-  public const MESSAGE_TYPE_TEXT = 'text';
-  public const MESSAGE_TYPE_NOTE = 'note';
-  public const MESSAGE_TYPE_COMMENT = 'comment';
-  public const MESSAGE_TYPE_CAUTION = 'caution';
-  public const MESSAGE_TYPE_ERROR = 'error';
-  public const MESSAGE_TYPE_SUCCESS = 'success';
+  public const string MESSAGE_TYPE_SECTION = 'section';
+  public const string MESSAGE_TYPE_TITLE = 'title';
+  public const string MESSAGE_TYPE_TEXT = 'text';
+  public const string MESSAGE_TYPE_NOTE = 'note';
+  public const string MESSAGE_TYPE_COMMENT = 'comment';
+  public const string MESSAGE_TYPE_CAUTION = 'caution';
+  public const string MESSAGE_TYPE_ERROR = 'error';
+  public const string MESSAGE_TYPE_SUCCESS = 'success';
 
   /**
    * @var SymfonyStyle|null

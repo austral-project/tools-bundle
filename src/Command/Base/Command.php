@@ -19,10 +19,8 @@ use Symfony\Component\Console\Event\ConsoleErrorEvent;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\HttpKernel\KernelInterface;
 
 /**
  * Austral Abstract Command.
@@ -36,14 +34,9 @@ abstract class Command extends BaseCommand
   use Traits\IoTrait;
 
   /**
-   * @var ContainerInterface|null
-   */
-  protected ?ContainerInterface $container = null;
-
-  /**
    * @var EventDispatcherInterface|null
    */
-  protected ?EventDispatcherInterface $dispatcher = null;
+  protected ?EventDispatcherInterface $eventDispatcher = null;
 
   /**
    * @var string
@@ -83,19 +76,13 @@ abstract class Command extends BaseCommand
   }
 
   /**
-   * @param ContainerInterface $container
+   * @param EventDispatcherInterface $eventDispatcher
    *
    * @return void
    */
-  public function setContainer(ContainerInterface $container): void
+  public function setEventDispatcher(EventDispatcherInterface $eventDispatcher): void
   {
-    $this->container = $container;
-    $dispatcher = $this->container->get('event_dispatcher');
-    if (!$dispatcher instanceof EventDispatcherInterface)
-    {
-      throw new \LogicException(sprintf("Service 'event_dispatcher' must implement %s", EventDispatcherInterface::class));
-    }
-    $this->dispatcher = $dispatcher;
+    $this->eventDispatcher = $eventDispatcher;
   }
 
   /**
@@ -110,16 +97,6 @@ abstract class Command extends BaseCommand
     if (null === $this->application)
     {
       throw new \LogicException('The container cannot be retrieved as the application instance is not yet set.');
-    }
-    // Symfony 7 no longer injects the container into the commands: it is taken from the kernel
-    // of the application (Symfony\Bundle\FrameworkBundle\Console\Application), as in Austral 3.x.
-    if (null === $this->container && method_exists($this->application, 'getKernel'))
-    {
-      $kernel = $this->application->getKernel();
-      if ($kernel instanceof KernelInterface)
-      {
-        $this->setContainer($kernel->getContainer());
-      }
     }
     $this->setIo(new SymfonyStyle($input, $output));
 
@@ -181,19 +158,19 @@ abstract class Command extends BaseCommand
     try
     {
       $consoleEvent = new ConsoleEvent();
-      $this->dispatcher?->dispatch($consoleEvent, ConsoleEvent::EVENT_CONSOLE_EXECUTE_BEFORE);
+      $this->eventDispatcher?->dispatch($consoleEvent, ConsoleEvent::EVENT_CONSOLE_EXECUTE_BEFORE);
       $this->executeCommand($input, $output);
-      $this->dispatcher?->dispatch($consoleEvent, ConsoleEvent::EVENT_CONSOLE_EXECUTE_AFTER);
+      $this->eventDispatcher?->dispatch($consoleEvent, ConsoleEvent::EVENT_CONSOLE_EXECUTE_AFTER);
       $this->stop();
 
       return self::SUCCESS;
     }
     catch (\Exception $e)
     {
-      if ($this->dispatcher)
+      if ($this->eventDispatcher)
       {
         $errorConsole = new ConsoleErrorEvent($input, $output, $e, $this);
-        $this->dispatcher->dispatch($errorConsole, 'console.error');
+        $this->eventDispatcher->dispatch($errorConsole, 'console.error');
       }
       $this->viewMessage($e->getMessage(), 'error');
       $this->executeStopCommand();

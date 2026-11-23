@@ -13,45 +13,105 @@ namespace Austral\ToolsBundle\Tests\Command;
 
 use Austral\ToolsBundle\Command\Base\Command;
 use Austral\ToolsBundle\Event\ConsoleEvent;
-use Symfony\Bundle\FrameworkBundle\Console\Application;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use PHPUnit\Framework\TestCase;
+use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Event\ConsoleErrorEvent;
+use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Tester\CommandTester;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
-final class BaseCommandTest extends KernelTestCase
+final class BaseCommandTest extends TestCase
 {
-  public function testCommandGetsTheContainerAndDispatchesTheConsoleEvents(): void
+  public function testConsoleEventsAreDispatchedAroundTheCommand(): void
   {
-    $kernel = self::bootKernel();
-
-    $command = new class('austral:test:base') extends Command {
-      public ?ContainerInterface $containerUsed = null;
-
-      protected function executeCommand(InputInterface $input, OutputInterface $output): void
-      {
-        $this->containerUsed = $this->container;
-      }
-    };
-    $command->setApplication(new Application($kernel));
-
-    $dispatcher = $kernel->getContainer()->get('event_dispatcher');
-    self::assertInstanceOf(EventDispatcherInterface::class, $dispatcher);
     $events = [];
+    $dispatcher = new EventDispatcher();
     $dispatcher->addListener(ConsoleEvent::EVENT_CONSOLE_EXECUTE_BEFORE, function () use (&$events): void {
       $events[] = 'before';
     });
     $dispatcher->addListener(ConsoleEvent::EVENT_CONSOLE_EXECUTE_AFTER, function () use (&$events): void {
       $events[] = 'after';
     });
+    $command = self::command(function () use (&$events): void {
+      $events[] = 'execute';
+    });
+    $command->setEventDispatcher($dispatcher);
 
     $tester = new CommandTester($command);
     $tester->execute([]);
 
     self::assertSame(Command::SUCCESS, $tester->getStatusCode(), $tester->getDisplay());
-    self::assertNotNull($command->containerUsed, 'The command must get the container of the kernel.');
-    self::assertSame(['before', 'after'], $events);
+    self::assertSame(['before', 'execute', 'after'], $events);
+  }
+
+  public function testCommandRunsWithoutEventDispatcher(): void
+  {
+    $executed = false;
+    $command = self::command(function () use (&$executed): void {
+      $executed = true;
+    });
+
+    $tester = new CommandTester($command);
+    $tester->execute([]);
+
+    self::assertSame(Command::SUCCESS, $tester->getStatusCode(), $tester->getDisplay());
+    self::assertTrue($executed);
+  }
+
+  public function testExceptionDispatchesConsoleErrorAndReturnsFailure(): void
+  {
+    $errors = [];
+    $dispatcher = new EventDispatcher();
+    $dispatcher->addListener(ConsoleEvent::EVENT_CONSOLE_EXECUTE_AFTER, function () use (&$errors): void {
+      $errors[] = 'after';
+    });
+    $dispatcher->addListener('console.error', function (ConsoleErrorEvent $event) use (&$errors): void {
+      $errors[] = $event->getError()->getMessage();
+    });
+    $command = self::command(function (): void {
+      throw new \RuntimeException('Something went wrong');
+    });
+    $command->setEventDispatcher($dispatcher);
+
+    $tester = new CommandTester($command);
+    $tester->execute([]);
+
+    self::assertSame(Command::FAILURE, $tester->getStatusCode());
+    self::assertSame(['Something went wrong'], $errors, 'The "after" event must not be dispatched when the command fails.');
+    self::assertStringContainsString('Something went wrong', $tester->getDisplay());
+  }
+
+  public function testCommandWithoutApplicationIsRejected(): void
+  {
+    $command = self::command(function (): void {
+    });
+    $command->setApplication(null);
+
+    $this->expectException(\LogicException::class);
+    $command->run(new ArrayInput([]), new NullOutput());
+  }
+
+  /**
+   * @param \Closure(): void $execute
+   */
+  private static function command(\Closure $execute): Command
+  {
+    $command = new class('austral:test:base', $execute) extends Command {
+      public function __construct(string $name, private readonly \Closure $execute)
+      {
+        parent::__construct($name);
+      }
+
+      protected function executeCommand(InputInterface $input, OutputInterface $output): void
+      {
+        ($this->execute)();
+      }
+    };
+    $command->setApplication(new Application());
+
+    return $command;
   }
 }

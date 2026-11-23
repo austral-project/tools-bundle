@@ -1,10 +1,11 @@
 services:
-  _defaults:
-    autowire:     true
-    public:       false
 
   ##### Command Status checker
   austral.tools.status-checker.command:
-    class:        Austral\ToolsBundle\Command\StatusChecker
+    class: Austral\ToolsBundle\Command\StatusChecker
+    arguments:
+      $servicesStatusChecker: '@austral.tools.status-checker'
+    calls:
+      - [ setDispatcher, [ '@event_dispatcher' ] ]
     tags:
-      - { name: console.command, command: "austral:tools:status-checker" }
+      - { name: console.command, command: 'austral:tools:status-checker' }

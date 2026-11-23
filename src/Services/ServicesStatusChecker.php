@@ -12,7 +12,6 @@
 namespace Austral\ToolsBundle\Services;
 
 use Austral\ToolsBundle\AustralTools;
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Process\Process;
 
@@ -24,11 +23,6 @@ use Symfony\Component\Process\Process;
 class ServicesStatusChecker
 {
   /**
-   * @var ContainerInterface
-   */
-  protected ContainerInterface $container;
-
-  /**
    * @var string
    */
   protected string $pathFileStatus;
@@ -39,11 +33,6 @@ class ServicesStatusChecker
   protected int $sleep = 5;
 
   /**
-   * @var array<int|string, mixed>
-   */
-  protected array $services;
-
-  /**
    * ServicesStatusChecker constructor
    *
    * @param ContainerInterface   $container
@@ -51,17 +40,15 @@ class ServicesStatusChecker
    * @param array<string, mixed> $services
    */
   public function __construct(
-    #[Autowire(service: 'service_container')] ContainerInterface $container,
-    #[Autowire('%kernel.project_dir%')] string $projectDir,
-    #[Autowire('%austral.tools.services%')] array $services
+    protected ContainerInterface $container,
+    string $projectDir,
+    protected array $services
   ) {
-    $this->container = $container;
     $this->pathFileStatus = AustralTools::join(
       $projectDir,
       'var',
       'services.status'
     );
-    $this->services = $services;
   }
 
   /**

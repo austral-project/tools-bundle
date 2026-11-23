@@ -13,6 +13,6 @@ namespace Austral\ToolsBundle\Event;
 
 class ConsoleEvent
 {
-  public const EVENT_CONSOLE_EXECUTE_BEFORE = 'austral.event.console.execute.before';
-  public const EVENT_CONSOLE_EXECUTE_AFTER = 'austral.event.console.execute.after';
+  public const string EVENT_CONSOLE_EXECUTE_BEFORE = 'austral.event.console.execute.before';
+  public const string EVENT_CONSOLE_EXECUTE_AFTER = 'austral.event.console.execute.after';
 }
