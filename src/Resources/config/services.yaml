@@ -3,9 +3,10 @@ services:
   Austral\ToolsBundle\TwigExtension\ToolsTwig:
     arguments:
       $kernelProjectDir:  "%kernel.project_dir%"
+    tags:
+      - { name: twig.extension }
   twig.extension.tools:
     alias:        Austral\ToolsBundle\TwigExtension\ToolsTwig
-    public:       true
 
   ##### Debug
   Austral\ToolsBundle\Services\Debug:

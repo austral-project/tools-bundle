@@ -24,7 +24,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  *
  * @final
  */
-class StatusChecker extends Command
+class StatusCheckerCommand extends Command
 {
   /**
    * @var string
@@ -57,12 +57,12 @@ class StatusChecker extends Command
   /**
    * StatusChecker constructor
    *
-   * @param ServicesStatusChecker|null $servicesStatusChecker
-   * @param string|null                $name
-   * @param callable|null              $code
+   * @param ServicesStatusChecker $servicesStatusChecker
+   * @param string|null           $name
+   * @param callable|null         $code
    */
   public function __construct(
-    protected ?ServicesStatusChecker $servicesStatusChecker = null,
+    protected ServicesStatusChecker $servicesStatusChecker,
     ?string $name = null,
     ?callable $code = null
   ) {
@@ -75,10 +75,6 @@ class StatusChecker extends Command
    */
   protected function executeCommand(InputInterface $input, OutputInterface $output): void
   {
-    if (!$this->servicesStatusChecker instanceof ServicesStatusChecker)
-    {
-      throw new \LogicException(sprintf("Service 'austral.tools.status-checker' must implement %s", ServicesStatusChecker::class));
-    }
     if ($input->getOption('service'))
     {
       $sleep = $input->getOption('sleep') ?: $this->servicesStatusChecker->getSleep();
@@ -99,6 +95,6 @@ class StatusChecker extends Command
    */
   protected function executeStopCommand(): void
   {
-    $this->servicesStatusChecker?->write('stop');
+    $this->servicesStatusChecker->write('stop');
   }
 }

@@ -2,7 +2,7 @@ services:
 
   ##### Command Status checker
   austral.tools.status-checker.command:
-    class: Austral\ToolsBundle\Command\StatusChecker
+    class: Austral\ToolsBundle\Command\StatusCheckerCommand
     arguments:
       $servicesStatusChecker: '@austral.tools.status-checker'
     calls:

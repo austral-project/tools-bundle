@@ -120,14 +120,14 @@ class AustralToolsTest extends TestCase
   // ----------------------------------------
 
   /**
-   * testGetValueByKeyAndValueByKeyOnArray
+   * testValueByKeyOnArray
    *
    * @return void
    */
-  public function testGetValueByKeyAndValueByKeyOnArray(): void
+  public function testValueByKeyOnArray(): void
   {
     $data = ['name' => 'John', 'age' => 30];
-    $this->assertSame('John', AustralTools::getValueByKey($data, 'name'));
+    $this->assertSame('John', AustralTools::valueByKey($data, 'name'));
     $this->assertSame(30, AustralTools::valueByKey($data, 'age'));
     $this->assertSame('default', AustralTools::valueByKey($data, 'unknown', 'default'));
   }
@@ -421,38 +421,6 @@ class AustralToolsTest extends TestCase
   {
     $this->assertTrue(AustralTools::usedImplements(\Austral\ToolsBundle\Tests\TestUsedClass\ImplementsChild::class, [\Austral\ToolsBundle\Tests\TestUsedClass\MyInterface::class]));
     $this->assertFalse(AustralTools::usedImplements(\Austral\ToolsBundle\Tests\TestUsedClass\ImplementsChild::class, [\Countable::class]));
-  }
-
-  // ----------------------------------------
-  // Encryption
-  // ----------------------------------------
-
-  /**
-   * testEncryptDecryptString
-   *
-   * @return void
-   */
-  public function testEncryptDecryptString(): void
-  {
-    $key = 'my_secret_key';
-    $plain = 'Hello World!';
-    $enc = AustralTools::encrypte($plain, $key);
-    $dec = AustralTools::decrypte($enc, $key);
-    $this->assertSame($plain, $dec);
-  }
-
-  /**
-   * testEncryptDecryptArray
-   *
-   * @return void
-   */
-  public function testEncryptDecryptArray(): void
-  {
-    $key = 'another_key';
-    $data = ['a' => 1, 'b' => 'x'];
-    $enc = AustralTools::encrypte($data, $key);
-    $dec = AustralTools::decrypte($enc, $key);
-    $this->assertSame($data, $dec);
   }
 
   // ----------------------------------------

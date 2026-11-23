@@ -14,6 +14,7 @@ namespace Austral\ToolsBundle\TwigExtension;
 use Austral\ToolsBundle\AustralTools;
 use Ramsey\Uuid\Uuid;
 use Twig\Environment;
+use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
 use Twig\TwigTest;
@@ -25,7 +26,7 @@ use Twig\TwigTest;
  *
  * @final
  */
-class ToolsTwig
+class ToolsTwig extends AbstractExtension
 {
   /**
    * Initialize

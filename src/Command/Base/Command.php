@@ -44,11 +44,6 @@ abstract class Command extends BaseCommand
   protected string $titleCommande = '';
 
   /**
-   * @var bool
-   */
-  protected bool $initEntityMapping = true;
-
-  /**
    * @var float
    */
   protected float $timeStartScript = 0.0;
@@ -94,10 +89,6 @@ abstract class Command extends BaseCommand
   protected function init(InputInterface $input, OutputInterface $output): Command
   {
     $this->application = $this->getApplication();
-    if (null === $this->application)
-    {
-      throw new \LogicException('The container cannot be retrieved as the application instance is not yet set.');
-    }
     $this->setIo(new SymfonyStyle($input, $output));
 
     return $this;

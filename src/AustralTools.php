@@ -140,22 +140,6 @@ class AustralTools
   /**
    * Returns the value of an array, if the key exists
    *
-   * @deprecated
-   *
-   * @param array<string|int, mixed>|object $array   $array
-   * @param string|int                      $key     key to get
-   * @param mixed                           $default default
-   *
-   * @return mixed
-   */
-  public static function getValueByKey(array|object $array, string|int $key, mixed $default = null): mixed
-  {
-    return self::valueByKey($array, $key, $default);
-  }
-
-  /**
-   * Returns the value of an array, if the key exists
-   *
    * @param array<string|int, mixed>|object $array   $array
    * @param string|int                      $key     key to get
    * @param mixed                           $default default
@@ -742,85 +726,6 @@ class AustralTools
     $targets = (array) $implementClasses;
 
     return array_any($targets, fn ($iface) => is_a($class, $iface, true));
-  }
-
-  /**
-   * @param string $value
-   * @param string $cryptKey
-   *
-   * @return string
-   */
-  private static function generateCryptByKey(string $value, string $cryptKey): string
-  {
-    $cryptKey = sha1($cryptKey);
-    $counter = 0;
-    $var = '';
-    for ($ctr = 0; $ctr < strlen($value); ++$ctr)
-    {
-      if ($counter == strlen($cryptKey))
-      {
-        $counter = 0;
-      }
-      $var .= substr($value, $ctr, 1) ^ substr($cryptKey, $counter, 1);
-      ++$counter;
-    }
-
-    return $var;
-  }
-
-  /**
-   * @param array<int|string, mixed>|string $value
-   * @param string                          $cryptKey
-   *
-   * @return string
-   */
-  public static function encrypte(array|string $value, string $cryptKey): string
-  {
-    if (is_array($value))
-    {
-      $value = json_encode($value);
-      $value = false === $value ? '' : $value;
-    }
-    srand((int) microtime() * 1000000);
-    $key = md5((string) rand(0, 32000));
-    $counter = 0;
-    $encryptValue = '';
-    for ($ctr = 0; $ctr < strlen($value); ++$ctr)
-    {
-      if ($counter == strlen($key))
-      {
-        $counter = 0;
-      }
-      $encryptValue .= substr($key, $counter, 1).(substr($value, $ctr, 1) ^ substr($key, $counter, 1));
-      ++$counter;
-    }
-
-    return base64_encode(self::generateCryptByKey($encryptValue, $cryptKey));
-  }
-
-  /**
-   * @param string $encryptValue
-   * @param string $cryptKey
-   *
-   * @return string|array<string|int, mixed>
-   */
-  public static function decrypte(string $encryptValue, string $cryptKey): array|string
-  {
-    $encryptValue = self::generateCryptByKey(base64_decode($encryptValue), $cryptKey);
-    $value = '';
-    for ($ctr = 0; $ctr < strlen($encryptValue); ++$ctr)
-    {
-      $key = substr($encryptValue, $ctr, 1);
-      ++$ctr;
-      $value .= (substr($encryptValue, $ctr, 1) ^ $key);
-    }
-    $valueJson = json_decode($value, true);
-    if (is_array($valueJson))
-    {
-      return $valueJson;
-    }
-
-    return $value;
   }
 
   /**
