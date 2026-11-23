@@ -5,6 +5,7 @@ services:
       $kernelProjectDir:  "%kernel.project_dir%"
   twig.extension.tools:
     alias:        Austral\ToolsBundle\TwigExtension\ToolsTwig
+    public:       true
 
   ##### Debug
   Austral\ToolsBundle\Services\Debug:
@@ -12,6 +13,7 @@ services:
       - [ setDebugStopWatch, ['@?debug.stopwatch'] ]
   austral.tools.debug:
     alias:        Austral\ToolsBundle\Services\Debug
+    public:       true
 
   ##### Service Status checker
   Austral\ToolsBundle\Services\ServicesStatusChecker:
@@ -20,3 +22,4 @@ services:
       $services:    '%austral.tools.services%'
   austral.tools.status-checker:
     alias:        Austral\ToolsBundle\Services\ServicesStatusChecker
+    public:       true

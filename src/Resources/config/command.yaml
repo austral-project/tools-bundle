@@ -6,6 +6,6 @@ services:
     arguments:
       $servicesStatusChecker: '@austral.tools.status-checker'
     calls:
-      - [ setDispatcher, [ '@event_dispatcher' ] ]
+      - [ setEventDispatcher, [ '@event_dispatcher' ] ]
     tags:
       - { name: console.command, command: 'austral:tools:status-checker' }
