@@ -37,4 +37,12 @@ class AustralToolsExtension extends Extension
     $loader->load('command.yaml');
     $loader->load('services.yaml');
   }
+
+  /**
+   * @return string
+   */
+  public function getNamespace(): string
+  {
+    return 'https://austral.dev/schema/dic/austral_tools';
+  }
 }
